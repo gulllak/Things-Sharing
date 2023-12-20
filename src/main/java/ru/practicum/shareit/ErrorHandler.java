@@ -13,6 +13,7 @@ import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.DuplicateResourceException;
 import ru.practicum.shareit.exception.EntityAlreadyExistException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.List;
 
@@ -56,6 +57,12 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ValidationException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 }

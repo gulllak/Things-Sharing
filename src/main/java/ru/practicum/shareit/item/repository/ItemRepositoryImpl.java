@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
@@ -51,33 +50,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item update(Item item) {
-        if (!items.containsKey(item.getId())) {
-            throw new EntityNotFoundException(String.format("Вещи с id = %d не существует", item.getId()));
-        }
-
-        if (!isItemOwner(item.getId(), item.getOwner())) {
-            throw new AccessDeniedException(String.format("Пользователь с id = %d не имеет права изменять вещь с id = %d", item.getOwner(), item.getId()));
-        }
-
-        Item updatedItem = getById(item.getId());
-        if (item.getName() != null) {
-            updatedItem.setName(item.getName());
-        }
-        if (item.getDescription() != null) {
-            updatedItem.setDescription(item.getDescription());
-        }
-        if (item.getAvailable() != null) {
-            updatedItem.setAvailable(item.getAvailable());
-        }
-
-        items.replace(item.getId(), updatedItem);
+        items.replace(item.getId(), item);
         return items.get(item.getId());
-    }
-
-    private boolean isItemOwner(long itemId, long ownerId) {
-        Item item = getById(itemId);
-
-        return item.getOwner() == ownerId;
     }
 
     private long getNextId() {

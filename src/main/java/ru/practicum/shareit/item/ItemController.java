@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.PatchItemDto;
+import ru.practicum.shareit.item.dto.PostItemDto;
+import ru.practicum.shareit.item.dto.ResponseItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -27,50 +31,64 @@ public class ItemController {
     private final ModelMapper modelMapper;
 
     @PostMapping
-    public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id") long id,
-                          @RequestBody @Valid ItemDto itemDto) {
-        Item item = itemDtoToItem(itemDto);
+    public ResponseItemDto create(@RequestHeader(value = "X-Sharer-User-Id") long id,
+                                  @RequestBody @Valid PostItemDto postItemDto) {
+        Item item = postItemDtoToItem(postItemDto);
         item.setOwner(id);
 
-        return itemToItemDto(itemService.create(item));
+        return itemToResponseItemDto(itemService.create(item));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getById(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseItemDto getById(@RequestHeader(value = "X-Sharer-User-Id") long userId,
                            @PathVariable("itemId") long itemId) {
-        return itemToItemDto(itemService.getById(itemId));
+        return itemToResponseItemDto(itemService.getById(itemId));
     }
 
     @GetMapping
-    public List<ItemDto> getAllUserItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
+    public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
         return itemService.getAllUserItems(userId).stream()
-                .map(this::itemToItemDto)
+                .map(this::itemToResponseItemDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
-    public List<ItemDto> itemSearch(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<ResponseItemDto> itemSearch(@RequestHeader(value = "X-Sharer-User-Id") long userId,
                                     @RequestParam("text") String searchString) {
         return itemService.itemSearch(userId, searchString).stream()
-                .map(this::itemToItemDto)
+                .map(this::itemToResponseItemDto)
                 .collect(Collectors.toList());
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@PathVariable("itemId") long itemId,
+    public ResponseItemDto update(@PathVariable("itemId") long itemId,
                           @RequestHeader(value = "X-Sharer-User-Id") long userId,
-                          @RequestBody ItemDto itemDto) {
-        Item item = itemDtoToItem(itemDto);
-        item.setId(itemId);
-        item.setOwner(userId);
-        return itemToItemDto(itemService.update(item));
+                          @RequestBody PatchItemDto patchItemDto) {
+        validatePatchItemDto(patchItemDto);
+        Item item = itemService.getById(itemId);
+
+        if (item.getOwner() != userId) {
+            throw new AccessDeniedException(String.format("Пользователь с id = %d не имеет права изменять вещь с id = %d", userId, itemId));
+        }
+        modelMapper.map(patchItemDto, item);
+
+        return itemToResponseItemDto(itemService.update(item));
     }
 
-    private Item itemDtoToItem(ItemDto itemDto) {
-        return modelMapper.map(itemDto, Item.class);
+    private Item postItemDtoToItem(PostItemDto postItemDto) {
+        return modelMapper.map(postItemDto, Item.class);
     }
 
-    private ItemDto itemToItemDto(Item item) {
-        return modelMapper.map(item, ItemDto.class);
+    private ResponseItemDto itemToResponseItemDto(Item item) {
+        return modelMapper.map(item, ResponseItemDto.class);
+    }
+
+    private void validatePatchItemDto(PatchItemDto patchItemDto) {
+        if (patchItemDto.getName() != null && (patchItemDto.getName().isEmpty() || patchItemDto.getName().isBlank())) {
+            throw new ValidationException("Имя вещи не может быть пустым");
+        }
+        if (patchItemDto.getDescription() != null && (patchItemDto.getDescription().isEmpty() || patchItemDto.getDescription().isBlank())) {
+            throw new ValidationException("Описание вещи не может быть пустым");
+        }
     }
 }

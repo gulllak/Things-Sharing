@@ -3,8 +3,8 @@ package ru.practicum.shareit.exception;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AccessDeniedException extends RuntimeException {
-    public AccessDeniedException(String message) {
+public class ValidationException extends RuntimeException {
+    public ValidationException(String message) {
         super(message);
         log.error(message);
     }
