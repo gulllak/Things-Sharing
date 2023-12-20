@@ -9,7 +9,7 @@ public interface ItemService {
 
     Item getById(long id);
 
-    List<Item> getAll(long userId);
+    List<Item> getAllUserItems(long userId);
 
     List<Item> itemSearch(long userId, String searchString);
 

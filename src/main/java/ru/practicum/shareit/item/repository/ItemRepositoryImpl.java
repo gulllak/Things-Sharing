@@ -25,15 +25,16 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item getById(long id) {
-        if (!existItem(id)) {
+        Item item = items.get(id);
+        if (item == null) {
             throw new EntityNotFoundException(String.format("Вещи с id = %d не существует", id));
         }
 
-        return items.get(id);
+        return item;
     }
 
     @Override
-    public List<Item> getAll(long userId) {
+    public List<Item> getAllUserItems(long userId) {
         return items.values().stream()
                 .filter(item -> item.getOwner() == userId)
                 .collect(Collectors.toList());
@@ -50,7 +51,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item update(Item item) {
-        if (!existItem(item.getId())) {
+        if (!items.containsKey(item.getId())) {
             throw new EntityNotFoundException(String.format("Вещи с id = %d не существует", item.getId()));
         }
 
@@ -71,10 +72,6 @@ public class ItemRepositoryImpl implements ItemRepository {
 
         items.replace(item.getId(), updatedItem);
         return items.get(item.getId());
-    }
-
-    private boolean existItem(long id) {
-        return items.containsKey(id);
     }
 
     private boolean isItemOwner(long itemId, long ownerId) {

@@ -42,8 +42,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        return itemService.getAll(userId).stream()
+    public List<ItemDto> getAllUserItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
+        return itemService.getAllUserItems(userId).stream()
                 .map(this::itemToItemDto)
                 .collect(Collectors.toList());
     }
@@ -65,7 +65,6 @@ public class ItemController {
         item.setOwner(userId);
         return itemToItemDto(itemService.update(item));
     }
-
 
     private Item itemDtoToItem(ItemDto itemDto) {
         return modelMapper.map(itemDto, Item.class);

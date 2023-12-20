@@ -28,10 +28,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAll(long userId) {
+    public List<Item> getAllUserItems(long userId) {
         userRepository.getById(userId);
 
-        return itemRepository.getAll(userId);
+        return itemRepository.getAllUserItems(userId);
     }
 
     @Override
