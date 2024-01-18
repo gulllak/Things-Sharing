@@ -7,8 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class PostItemDto {
-    private Long id;
+public class RequestItemDto {
     @NotEmpty(message = "Имя вещи не может быть пустым")
     @NotBlank
     private String name;

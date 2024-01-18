@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,7 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.PatchUserDto;
+import ru.practicum.shareit.user.dto.RequestUserDto;
+import ru.practicum.shareit.user.dto.ResponseUserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.model.User;
 
@@ -25,48 +28,53 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final UserMapper mapper;
 
     @GetMapping
-    public List<UserDto> getAll() {
+    public List<ResponseUserDto> getAll() {
         return userService.getAll().stream()
-                .map(this::userToUserDto)
+                .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{userId}")
-    public UserDto getById(@PathVariable("userId") long id) {
-        return userToUserDto(userService.getById(id));
+    public ResponseUserDto getById(@PathVariable("userId") long userId) {
+        return mapper.toDto(userService.getById(userId));
     }
 
     @PostMapping
-    public UserDto create(@RequestBody @Valid UserDto userDto) {
-        User user = userDtoToUser(userDto);
+    public ResponseUserDto create(@RequestBody @Valid RequestUserDto requestUserDto) {
+        User user = mapper.toUser(requestUserDto);
 
-        return userToUserDto(userService.create(user));
+        return mapper.toDto(userService.create(user));
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@PathVariable("userId") long id,
-                          @RequestBody UserDto userDto) {
-        userDto.setId(id);
-        User user = userDtoToUser(userDto);
+    public ResponseUserDto update(@PathVariable("userId") long userId,
+                          @RequestBody PatchUserDto patchUserDto) {
+        validatePatchUserDto(patchUserDto);
+        patchUserDto.setId(userId);
 
-        return userToUserDto(userService.update(user));
+        return mapper.toDto(userService.update(patchUserDto));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("userId") long id) {
-        userService.delete(id);
+    public ResponseEntity<HttpStatus> delete(@PathVariable("userId") long userId) {
+        userService.delete(userId);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    private UserDto userToUserDto(User user) {
-        return modelMapper.map(user, UserDto.class);
-    }
+    private void validatePatchUserDto(PatchUserDto patchUserDto) {
+        if(patchUserDto.getName() != null && (patchUserDto.getName().isEmpty() || patchUserDto.getName().isBlank())) {
+            throw new ValidationException("Имя пользователя не может быть пустым");
+        }
 
-    private User userDtoToUser(UserDto userDto) {
-        return modelMapper.map(userDto, User.class);
+        if(patchUserDto.getEmail() != null
+                && (patchUserDto.getEmail().isEmpty()
+                || patchUserDto.getEmail().isBlank()
+                || !patchUserDto.getEmail().matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"))) {
+            throw new ValidationException("Почта пользователя не может быть пустой и должна соотвествовать формату example@example.com");
+        }
     }
 }
