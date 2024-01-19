@@ -50,22 +50,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId)
                 .map(itemMapper::toItem)
                 .map(item -> {
-                    final ItemEntity entity = itemMapper.toItemEntity(item);
-                    if (Objects.equals(entity.getOwner().getId(), userId)) {
-                        final LocalDateTime start = LocalDateTime.now();
-                        final BookingEntity lastBooking = bookingRepository
-                                .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(entity, start, BookingStatus.APPROVED)
-                                .orElse(null);
-                        final BookingEntity nextBooking = bookingRepository
-                                .findFirstByItemAndStartAfterAndStatusOrderByStart(entity, start, BookingStatus.APPROVED)
-                                .orElse(null);
-
-                        item.setLastBooking(bookingMapper.toBooking(lastBooking));
-                        item.setNextBooking(bookingMapper.toBooking(nextBooking));
-                    }
-                    item.setComments(commentRepository.findAllByItem(entity).stream()
-                            .map(commentMapper::toComment)
-                            .collect(Collectors.toList()));
+                    filItem(userId, item);
                     return item;
 
                 }).orElseThrow(() -> new EntityNotFoundException(String.format("Вещи с id = %d не существует", itemId)));
@@ -77,24 +62,7 @@ public class ItemServiceImpl implements ItemService {
 
         return itemRepository.findAllByOwnerIdOrderById(userId).stream()
                 .map(itemMapper::toItem)
-                .peek(item -> {
-                    final ItemEntity entity = itemMapper.toItemEntity(item);
-                    if (Objects.equals(entity.getOwner().getId(), userId)) {
-                        final LocalDateTime start = LocalDateTime.now();
-                        final BookingEntity lastBooking = bookingRepository
-                                .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(entity, start, BookingStatus.APPROVED)
-                                .orElse(null);
-                        final BookingEntity nextBooking = bookingRepository
-                                .findFirstByItemAndStartAfterAndStatusOrderByStart(entity, start, BookingStatus.APPROVED)
-                                .orElse(null);
-
-                        item.setLastBooking(bookingMapper.toBooking(lastBooking));
-                        item.setNextBooking(bookingMapper.toBooking(nextBooking));
-                    }
-                    item.setComments(commentRepository.findAllByItem(entity).stream()
-                            .map(commentMapper::toComment)
-                            .collect(Collectors.toList()));
-                })
+                .peek(item -> filItem(userId, item))
                 .collect(Collectors.toList());
     }
 
@@ -133,5 +101,24 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(userService.getById(comment.getAuthor().getId()));
 
         return commentMapper.toComment(commentRepository.save(commentMapper.toCommentEntity(comment)));
+    }
+
+    private void filItem(long userId, Item item) {
+        final ItemEntity entity = itemMapper.toItemEntity(item);
+        if (Objects.equals(entity.getOwner().getId(), userId)) {
+            final LocalDateTime start = LocalDateTime.now();
+            final BookingEntity lastBooking = bookingRepository
+                    .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(entity, start, BookingStatus.APPROVED)
+                    .orElse(null);
+            final BookingEntity nextBooking = bookingRepository
+                    .findFirstByItemAndStartAfterAndStatusOrderByStart(entity, start, BookingStatus.APPROVED)
+                    .orElse(null);
+
+            item.setLastBooking(bookingMapper.toBooking(lastBooking));
+            item.setNextBooking(bookingMapper.toBooking(nextBooking));
+        }
+        item.setComments(commentRepository.findAllByItem(entity).stream()
+                .map(commentMapper::toComment)
+                .collect(Collectors.toList()));
     }
 }
