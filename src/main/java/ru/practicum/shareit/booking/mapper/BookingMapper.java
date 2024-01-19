@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.dto.ResponseBookingDto;
 import ru.practicum.shareit.booking.dto.ResponseBookingForItemDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = UserMapper.class)
@@ -21,8 +20,4 @@ public interface BookingMapper {
     @Mapping(target = "id", source = "booking.id")
     @Mapping(target = "bookerId", source = "booking.booker.id")
     ResponseBookingForItemDto toResponseBookingForItemDto(Booking booking);
-
-    BookingEntity toBookingEntity(Booking booking);
-
-    Booking toBooking(BookingEntity bookingEntity);
 }

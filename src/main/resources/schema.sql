@@ -1,3 +1,15 @@
+DROP SEQUENCE IF EXISTS users_id_seq cascade;
+DROP SEQUENCE IF EXISTS items_id_seq cascade;
+DROP SEQUENCE IF EXISTS bookings_id_seq cascade;
+DROP SEQUENCE IF EXISTS requests_id_seq cascade;
+DROP SEQUENCE IF EXISTS comments_id_seq cascade;
+
+DROP TABLE IF EXISTS items cascade;
+DROP TABLE IF EXISTS users cascade;
+DROP TABLE IF EXISTS bookings cascade;
+DROP TABLE IF EXISTS requests cascade;
+DROP TABLE IF EXISTS comments cascade;
+
 CREATE SEQUENCE users_id_seq;
 CREATE SEQUENCE items_id_seq;
 CREATE SEQUENCE bookings_id_seq;
