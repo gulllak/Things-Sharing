@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.dto.PatchUserDto;
 import ru.practicum.shareit.user.dto.RequestUserDto;
 import ru.practicum.shareit.user.dto.ResponseUserDto;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.entity.UserEntity;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
@@ -16,6 +17,11 @@ public interface UserMapper {
     User toUser(RequestUserDto requestUserDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User toUser(PatchUserDto patchUserDto, @MappingTarget User entity);
-    ResponseUserDto toDto(User user);
+    UserEntity toUser(PatchUserDto patchUserDto, @MappingTarget UserEntity entity);
+
+    ResponseUserDto toResponseDto(User user);
+
+    User toUser(UserEntity userEntity);
+
+    UserEntity toUserEntity(User user);
 }

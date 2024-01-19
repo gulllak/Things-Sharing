@@ -33,20 +33,20 @@ public class UserController {
     @GetMapping
     public List<ResponseUserDto> getAll() {
         return userService.getAll().stream()
-                .map(mapper::toDto)
+                .map(mapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{userId}")
     public ResponseUserDto getById(@PathVariable("userId") long userId) {
-        return mapper.toDto(userService.getById(userId));
+        return mapper.toResponseDto(userService.getById(userId));
     }
 
     @PostMapping
     public ResponseUserDto create(@RequestBody @Valid RequestUserDto requestUserDto) {
         User user = mapper.toUser(requestUserDto);
 
-        return mapper.toDto(userService.create(user));
+        return mapper.toResponseDto(userService.create(user));
     }
 
     @PatchMapping("/{userId}")
@@ -55,7 +55,7 @@ public class UserController {
         validatePatchUserDto(patchUserDto);
         patchUserDto.setId(userId);
 
-        return mapper.toDto(userService.update(patchUserDto));
+        return mapper.toResponseDto(userService.update(patchUserDto));
     }
 
     @DeleteMapping("/{userId}")
@@ -66,11 +66,11 @@ public class UserController {
     }
 
     private void validatePatchUserDto(PatchUserDto patchUserDto) {
-        if(patchUserDto.getName() != null && (patchUserDto.getName().isEmpty() || patchUserDto.getName().isBlank())) {
+        if (patchUserDto.getName() != null && (patchUserDto.getName().isEmpty() || patchUserDto.getName().isBlank())) {
             throw new ValidationException("Имя пользователя не может быть пустым");
         }
 
-        if(patchUserDto.getEmail() != null
+        if (patchUserDto.getEmail() != null
                 && (patchUserDto.getEmail().isEmpty()
                 || patchUserDto.getEmail().isBlank()
                 || !patchUserDto.getEmail().matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"))) {

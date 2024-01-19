@@ -6,13 +6,15 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.item.dto.PatchItemDto;
 import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.dto.ResponseItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = UserMapper.class)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, BookingMapper.class, CommentMapper.class})
 public interface ItemMapper {
 
     @Mapping(target = "owner.id", source = "userId")
@@ -23,7 +25,13 @@ public interface ItemMapper {
     Item toItem(PatchItemDto patchItemDto, Long userId);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Item updateItem(Item item, @MappingTarget Item entity);
+    ItemEntity updateItem(ItemEntity item, @MappingTarget ItemEntity entity);
 
-    ResponseItemDto toDto(Item item);
+    ResponseItemDto toResponseDto(Item item);
+
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    Item toItem(ItemEntity item);
+
+    ItemEntity toItemEntity(Item item);
 }

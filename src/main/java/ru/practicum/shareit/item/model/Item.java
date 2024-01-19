@@ -1,35 +1,23 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import java.util.List;
 
-@Data
-@Entity
-@Table(name = "items")
+@Setter
+@Getter
+@AllArgsConstructor
 public class Item {
-    @Id
-    @SequenceGenerator(name = "pk_sequence", sequenceName = "items_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pk_sequence")
-    @Column(name = "id", nullable = false, updatable = false, unique = true)
     private Long id;
-    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "description", nullable = false)
     private String description;
-    @Column(name = "is_available", nullable = false)
     private Boolean available;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+    private Booking lastBooking;
+    private Booking nextBooking;
+    List<Comment> comments;
 }

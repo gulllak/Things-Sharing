@@ -87,6 +87,7 @@ public class ErrorHandler {
     public ErrorResponse handleConversionFailedException(ConversionFailedException ex) {
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS");
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException ex) {
