@@ -7,8 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 @Data
-public class UserDto {
-    private long id;
+public class RequestUserDto {
     @NotEmpty(message = "Имя пользователя не может быть пустым")
     @NotBlank
     private String name;

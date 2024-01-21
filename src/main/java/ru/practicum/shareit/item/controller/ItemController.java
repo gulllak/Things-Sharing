@@ -1,7 +1,6 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,12 +10,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.PatchItemDto;
-import ru.practicum.shareit.item.dto.PostItemDto;
+import ru.practicum.shareit.item.dto.RequestCommentDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
+import ru.practicum.shareit.item.dto.ResponseCommentDto;
 import ru.practicum.shareit.item.dto.ResponseItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.mapper.comment.CommentMapper;
+import ru.practicum.shareit.item.mapper.item.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -27,61 +28,55 @@ import java.util.stream.Collectors;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
-    private final ModelMapper modelMapper;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping
-    public ResponseItemDto create(@RequestHeader(value = "X-Sharer-User-Id") long id,
-                                  @RequestBody @Valid PostItemDto postItemDto) {
-        Item item = postItemDtoToItem(postItemDto);
-        item.setOwner(id);
-
-        return itemToResponseItemDto(itemService.create(item));
+    public ResponseItemDto create(@RequestHeader(value = X_SHARER_USER_ID) long userId,
+                                  @RequestBody @Valid RequestItemDto postItemDto) {
+        return itemMapper.toResponseDto(itemService.create(itemMapper.toItem(postItemDto, userId)));
     }
 
     @GetMapping("/{itemId}")
-    public ResponseItemDto getById(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseItemDto getById(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                            @PathVariable("itemId") long itemId) {
-        return itemToResponseItemDto(itemService.getById(itemId));
+        return itemMapper.toResponseDto(itemService.getById(userId, itemId));
     }
 
     @GetMapping
-    public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
+    public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = X_SHARER_USER_ID) long userId) {
         return itemService.getAllUserItems(userId).stream()
-                .map(this::itemToResponseItemDto)
+                .map(itemMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
-    public List<ResponseItemDto> itemSearch(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<ResponseItemDto> itemSearch(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                                     @RequestParam("text") String searchString) {
         return itemService.itemSearch(userId, searchString).stream()
-                .map(this::itemToResponseItemDto)
+                .map(itemMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     @PatchMapping("/{itemId}")
     public ResponseItemDto update(@PathVariable("itemId") long itemId,
-                          @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                          @RequestHeader(value = X_SHARER_USER_ID) long userId,
                           @RequestBody PatchItemDto patchItemDto) {
         validatePatchItemDto(patchItemDto);
-        Item item = itemService.getById(itemId);
+        patchItemDto.setId(itemId);
 
-        if (item.getOwner() != userId) {
-            throw new AccessDeniedException(String.format("Пользователь с id = %d не имеет права изменять вещь с id = %d", userId, itemId));
-        }
-        modelMapper.map(patchItemDto, item);
-
-        return itemToResponseItemDto(itemService.update(item));
+        return itemMapper.toResponseDto(itemService.update(itemMapper.toItem(patchItemDto, userId)));
     }
 
-    private Item postItemDtoToItem(PostItemDto postItemDto) {
-        return modelMapper.map(postItemDto, Item.class);
+    @PostMapping("/{itemId}/comment")
+    public ResponseCommentDto createComment(@PathVariable("itemId") long itemId,
+                                            @RequestHeader(value = X_SHARER_USER_ID) long userId,
+                                            @RequestBody @Valid RequestCommentDto requestCommentDto) {
+        return commentMapper.toResponseComment(itemService.createComment(commentMapper.toComment(requestCommentDto, itemId, userId)));
     }
 
-    private ResponseItemDto itemToResponseItemDto(Item item) {
-        return modelMapper.map(item, ResponseItemDto.class);
-    }
 
     private void validatePatchItemDto(PatchItemDto patchItemDto) {
         if (patchItemDto.getName() != null && (patchItemDto.getName().isEmpty() || patchItemDto.getName().isBlank())) {
