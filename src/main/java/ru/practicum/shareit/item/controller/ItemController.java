@@ -28,31 +28,32 @@ import java.util.stream.Collectors;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ResponseItemDto create(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseItemDto create(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                                   @RequestBody @Valid RequestItemDto postItemDto) {
         return itemMapper.toResponseDto(itemService.create(itemMapper.toItem(postItemDto, userId)));
     }
 
     @GetMapping("/{itemId}")
-    public ResponseItemDto getById(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseItemDto getById(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                            @PathVariable("itemId") long itemId) {
         return itemMapper.toResponseDto(itemService.getById(userId, itemId));
     }
 
     @GetMapping
-    public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
+    public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = X_SHARER_USER_ID) long userId) {
         return itemService.getAllUserItems(userId).stream()
                 .map(itemMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
-    public List<ResponseItemDto> itemSearch(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<ResponseItemDto> itemSearch(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                                     @RequestParam("text") String searchString) {
         return itemService.itemSearch(userId, searchString).stream()
                 .map(itemMapper::toResponseDto)
@@ -61,7 +62,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ResponseItemDto update(@PathVariable("itemId") long itemId,
-                          @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                          @RequestHeader(value = X_SHARER_USER_ID) long userId,
                           @RequestBody PatchItemDto patchItemDto) {
         validatePatchItemDto(patchItemDto);
         patchItemDto.setId(itemId);
@@ -71,7 +72,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseCommentDto createComment(@PathVariable("itemId") long itemId,
-                                            @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                            @RequestHeader(value = X_SHARER_USER_ID) long userId,
                                             @RequestBody @Valid RequestCommentDto requestCommentDto) {
         return commentMapper.toResponseComment(itemService.createComment(commentMapper.toComment(requestCommentDto, itemId, userId)));
     }

@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.dto.ResponseBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.controller.ItemController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -29,12 +30,12 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseBookingDto getBookingByUser(@PathVariable("bookingId") Long bookingId,
-                                               @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+                                               @RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId) {
         return mapper.toResponseBookingDto(bookingService.getBookingByUser(bookingId, userId));
     }
 
     @GetMapping
-    public List<ResponseBookingDto> getUserBookings(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<ResponseBookingDto> getUserBookings(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                                     @RequestParam(value = "state", required = false, defaultValue = "ALL") BookingState state) {
         return bookingService.getUserBookings(userId, state).stream()
                 .map(mapper::toResponseBookingDto)
@@ -42,7 +43,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<ResponseBookingDto> getOwnerBookings(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<ResponseBookingDto> getOwnerBookings(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                                     @RequestParam(value = "state", required = false, defaultValue = "ALL") BookingState state) {
         return bookingService.getOwnerBookings(userId, state).stream()
                 .map(mapper::toResponseBookingDto)
@@ -50,13 +51,13 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseBookingDto create(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseBookingDto create(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                      @RequestBody @Valid RequestBookingDto requestBookingDto) {
         return mapper.toResponseBookingDto(bookingService.create(mapper.toBooking(requestBookingDto, userId)));
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseBookingDto updateStatus(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public ResponseBookingDto updateStatus(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                            @PathVariable("bookingId") Long bookingId,
                                            @RequestParam(value = "approved", required = true) boolean isStatus) {
         return mapper.toResponseBookingDto(bookingService.updateStatus(userId, bookingId, isStatus));

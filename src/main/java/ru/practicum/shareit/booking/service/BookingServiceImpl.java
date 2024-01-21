@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingRepositoryMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -91,84 +92,64 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getUserBookings(long userId, BookingState state) {
-        userService.getById(userId);
-        List<Booking> bookings = new ArrayList<>();
+        isUserExists(userId);
+        List<BookingEntity> bookings = new ArrayList<>();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdAndCurrentTimeBetweenStartAndEnd(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdAndCurrentTimeBetweenStartAndEnd(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
         }
 
-        return bookings;
+        return bookings.stream()
+                .map(mapper::toBooking)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Booking> getOwnerBookings(long userId, BookingState state) {
-        userService.getById(userId);
-        List<Booking> bookings = new ArrayList<>();
+        isUserExists(userId);
+        List<BookingEntity> bookings = new ArrayList<>();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItemOwnerIdAndCurrentTimeBetweenStartAndEnd(userId, LocalDateTime.now()).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdAndCurrentTimeBetweenStartAndEnd(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED).stream()
-                        .map(mapper::toBooking)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
         }
 
-        return bookings;
+        return bookings.stream()
+                .map(mapper::toBooking)
+                .collect(Collectors.toList());
     }
 
     private void validateBookingTime(LocalDateTime start, LocalDateTime end) {
@@ -183,5 +164,9 @@ public class BookingServiceImpl implements BookingService {
         } else if (start.isBefore(LocalDateTime.now())) {
             throw new ValidationException("Время начала бронирования раньше текущей даты");
         }
+    }
+
+    private void isUserExists(long userId) {
+        userService.getById(userId);
     }
 }

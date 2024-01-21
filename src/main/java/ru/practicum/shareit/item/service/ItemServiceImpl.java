@@ -50,27 +50,28 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId)
                 .map(itemMapper::toItem)
                 .map(item -> {
-                    filItem(userId, item);
+                    fillItem(userId, item);
                     return item;
-
                 }).orElseThrow(() -> new EntityNotFoundException(String.format("Вещи с id = %d не существует", itemId)));
     }
 
     @Override
     public List<Item> getAllUserItems(long userId) {
-        userService.getById(userId);
+        isUserExists(userId);
 
         return itemRepository.findAllByOwnerIdOrderById(userId).stream()
                 .map(itemMapper::toItem)
-                .peek(item -> filItem(userId, item))
+                .peek(item -> fillItem(userId, item))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Item> itemSearch(long userId, String searchString) {
-        userService.getById(userId);
+        isUserExists(userId);
 
-        return searchString.isBlank() ? new ArrayList<>() : itemRepository.search(searchString).stream()
+        return searchString.isBlank()
+                ? new ArrayList<>()
+                : itemRepository.search(searchString).stream()
                 .map(itemMapper::toItem)
                 .collect(Collectors.toList());
     }
@@ -86,8 +87,8 @@ public class ItemServiceImpl implements ItemService {
             throw new AccessDeniedException(String.format("Пользователь с id = %d не имеет права изменять вещь с id = %d",
                     item.getOwner().getId(), item.getId()));
         }
-
-        return itemMapper.toItem(itemRepository.save(itemMapper.updateItem(itemMapper.toItemEntity(item), itemMapper.toItemEntity(entity))));
+        ItemEntity savedEntity = itemMapper.updateItem(itemMapper.toItemEntity(item), itemMapper.toItemEntity(entity));
+        return itemMapper.toItem(itemRepository.save(savedEntity));
     }
 
     @Transactional
@@ -103,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
         return commentMapper.toComment(commentRepository.save(commentMapper.toCommentEntity(comment)));
     }
 
-    private void filItem(long userId, Item item) {
+    private void fillItem(long userId, Item item) {
         final ItemEntity entity = itemMapper.toItemEntity(item);
         if (Objects.equals(entity.getOwner().getId(), userId)) {
             final LocalDateTime start = LocalDateTime.now();
@@ -120,5 +121,9 @@ public class ItemServiceImpl implements ItemService {
         item.setComments(commentRepository.findAllByItem(entity).stream()
                 .map(commentMapper::toComment)
                 .collect(Collectors.toList()));
+    }
+
+    private void isUserExists(long userId) {
+        userService.getById(userId);
     }
 }
