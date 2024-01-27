@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.entity.BookingEntity;
@@ -17,6 +18,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.mapper.ItemRequestRepositoryMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -33,14 +37,23 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemRepositoryMapper itemMapper;
     private final CommentRepositoryMapper commentMapper;
     private final BookingRepositoryMapper bookingMapper;
+
+    private final ItemRequestRepositoryMapper itemRequestRepositoryMapper;
 
     @Transactional
     @Override
     public Item create(Item item) {
         item.setOwner(userService.getById(item.getOwner().getId()));
+
+        if (item.getRequest() != null) {
+            ItemRequest itemRequest = itemRequestRepositoryMapper.toItemRequest(itemRequestRepository.findById(item.getRequest().getId()).orElse(null));
+            item.setRequest(itemRequest);
+        }
 
         return itemMapper.toItem(itemRepository.save(itemMapper.toItemEntity(item)));
     }
@@ -56,22 +69,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllUserItems(long userId) {
+    public List<Item> getAllUserItems(long userId, Pageable pageable) {
         isUserExists(userId);
 
-        return itemRepository.findAllByOwnerIdOrderById(userId).stream()
+        return itemRepository.findAllByOwnerIdOrderById(userId, pageable).stream()
                 .map(itemMapper::toItem)
                 .peek(item -> fillItem(userId, item))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> itemSearch(long userId, String searchString) {
+    public List<Item> itemSearch(long userId, String searchString, Pageable pageable) {
         isUserExists(userId);
 
         return searchString.isBlank()
                 ? new ArrayList<>()
-                : itemRepository.search(searchString).stream()
+                : itemRepository.search(searchString, pageable).stream()
                 .map(itemMapper::toItem)
                 .collect(Collectors.toList());
     }
