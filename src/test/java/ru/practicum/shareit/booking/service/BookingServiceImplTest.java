@@ -62,15 +62,15 @@ class BookingServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        LocalDateTime start = LocalDateTime.of(2024, 1, 30, 1, 1);
-        LocalDateTime end = LocalDateTime.of(2024, 2, 1, 1, 1);
+        LocalDateTime startTime = LocalDateTime.now().plusDays(1);
+        LocalDateTime endTime = LocalDateTime.now().plusDays(2);
 
         booker = new User(2L, "John", "jonh@mail.ru");
         owner = new User(1L, "adam", "adam@mail.ru");
 
         item = new Item(1L, "Дрель", "Ударная", true, owner, null, null, null,null,null);
 
-        booking = new Booking(1L, start, end, item, booker, BookingStatus.WAITING);
+        booking = new Booking(1L, startTime, endTime, item, booker, BookingStatus.WAITING);
 
         bookingEntity = new BookingEntity();
 
