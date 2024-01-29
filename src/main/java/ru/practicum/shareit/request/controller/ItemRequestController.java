@@ -18,6 +18,7 @@ import ru.practicum.shareit.request.dto.RequestItemRequestDto;
 import ru.practicum.shareit.request.dto.ResponseItemRequestDto;
 import ru.practicum.shareit.request.dto.ResponseItemRequestWithProposalDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
@@ -37,7 +38,9 @@ public class ItemRequestController {
     @PostMapping
     public ResponseItemRequestDto create(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                          @RequestBody @Valid RequestItemRequestDto requestItemRequestDto) {
-        return mapper.toResponseItemRequestDto(service.create(mapper.toItemRequest(requestItemRequestDto, userId)));
+        ItemRequest itemRequest = mapper.toItemRequest(requestItemRequestDto, userId);
+
+        return mapper.toResponseItemRequestDto(service.create(itemRequest));
     }
 
     @GetMapping
@@ -64,7 +67,6 @@ public class ItemRequestController {
     public ResponseItemRequestWithProposalDto getById(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                                       @PathVariable("requestId") long requestId) {
         return mapper.toResponseItemRequestWithProposalDto(service.getById(userId, requestId));
-
     }
 
 }

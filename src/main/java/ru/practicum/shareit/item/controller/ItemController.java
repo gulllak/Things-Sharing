@@ -21,6 +21,8 @@ import ru.practicum.shareit.item.dto.comment.ResponseCommentDto;
 import ru.practicum.shareit.item.dto.item.ResponseItemDto;
 import ru.practicum.shareit.item.mapper.comment.CommentMapper;
 import ru.practicum.shareit.item.mapper.item.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -41,7 +43,9 @@ public class ItemController {
     @PostMapping
     public ResponseItemDto create(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                                   @RequestBody @Valid RequestItemDto postItemDto) {
-        return itemMapper.toResponseDto(itemService.create(itemMapper.toItem(postItemDto, userId)));
+        Item item = itemMapper.toItem(postItemDto, userId);
+
+        return itemMapper.toResponseDto(itemService.create(item));
     }
 
     @GetMapping("/{itemId}")
@@ -84,14 +88,18 @@ public class ItemController {
         validatePatchItemDto(patchItemDto);
         patchItemDto.setId(itemId);
 
-        return itemMapper.toResponseDto(itemService.update(itemMapper.toItem(patchItemDto, userId)));
+        Item item = itemMapper.toItem(patchItemDto, userId);
+
+        return itemMapper.toResponseDto(itemService.update(item));
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseCommentDto createComment(@PathVariable("itemId") long itemId,
                                             @RequestHeader(value = X_SHARER_USER_ID) long userId,
                                             @RequestBody @Valid RequestCommentDto requestCommentDto) {
-        return commentMapper.toResponseComment(itemService.createComment(commentMapper.toComment(requestCommentDto, itemId, userId)));
+        Comment comment = commentMapper.toComment(requestCommentDto, itemId, userId);
+
+        return commentMapper.toResponseComment(itemService.createComment(comment));
     }
 
 

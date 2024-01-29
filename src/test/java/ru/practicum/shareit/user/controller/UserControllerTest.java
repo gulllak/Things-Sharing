@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,18 +17,24 @@ import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.validation.BindException;
+import ru.practicum.shareit.exception.DuplicateResourceException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.user.dto.PatchUserDto;
 import ru.practicum.shareit.user.dto.RequestUserDto;
 import ru.practicum.shareit.user.dto.ResponseUserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,25 +42,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
+@Import(UserMapperImpl.class)
 class UserControllerTest {
     @MockBean
     UserService userService;
 
-    @MockBean
+    @Autowired
     UserMapper mapper;
+
     @Autowired
     ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mvc;
+    UserController userController;
 
-    private RequestUserDto requestUserDto;
+    @Autowired
+    MockMvc mvc;
 
-    private User user;
+    RequestUserDto requestUserDto;
 
-    private User userWithId;
+    User user;
 
-    private ResponseUserDto responseUserDto;
+    User createdUser;
+
+    ResponseUserDto responseUserDto;
 
     @BeforeEach
     void setUp() {
@@ -61,7 +74,7 @@ class UserControllerTest {
         requestUserDto.setEmail("Jonh@mail.ru");
 
         user = new User(0, "Jonh", "Jonh@mail.ru");
-        userWithId = new User(1, "Jonh", "Jonh@mail.ru");
+        createdUser = new User(1, "Jonh", "Jonh@mail.ru");
 
         responseUserDto = new ResponseUserDto();
         responseUserDto.setId(1);
@@ -72,28 +85,25 @@ class UserControllerTest {
     @Test
     void getAll() throws Exception {
         List<ResponseUserDto> responseUserDtoList = List.of(responseUserDto);
-        List<User> users = List.of(userWithId);
+        List<User> users = List.of(createdUser);
 
         when(userService.getAll()).thenReturn(users);
 
         mvc.perform(get("/users"))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isOk());
-
-                //.andExpect(content().json(objectMapper.writeValueAsString(responseUserDtoList)));
-//                .andExpect(jsonPath("$", hasSize(1)))
-//                .andExpect(jsonPath("$.id", is(1)));
-//                .andExpect(jsonPath("$[0].name", is("Jonh")))
-//                .andExpect(jsonPath("$[0].email", is("Jonh@mail.ru")));
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(responseUserDtoList)))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].name", is("Jonh")))
+                .andExpect(jsonPath("$[0].email", is("Jonh@mail.ru")));
 
         verify(userService, times(1)).getAll();
     }
 
     @Test
-    void getById() throws Exception {
+    void getByIdCorrect() throws Exception {
         long userId = 1;
-        when(userService.getById(userId)).thenReturn(userWithId);
-        when(mapper.toResponseDto(any(User.class))).thenReturn(responseUserDto);
+        when(userService.getById(userId)).thenReturn(createdUser);
 
         mvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk())
@@ -103,15 +113,23 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email").value(responseUserDto.getEmail()));
 
         verify(userService, times(1)).getById(userId);
-        verify(mapper, times(1)).toResponseDto(any(User.class));
     }
 
     @Test
-    void create() throws Exception {
-        when(mapper.toUser(any(RequestUserDto.class))).thenReturn(user);
-        when(userService.create(any(User.class))).thenReturn(userWithId);
-        when(mapper.toResponseDto(any(User.class))).thenReturn(responseUserDto);
+    void getByIdIncorrect() throws Exception {
+        long userId = 99;
+        when(userService.getById(userId)).thenThrow(EntityNotFoundException.class);
 
+        mvc.perform(get("/users/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+        verify(userService, times(1)).getById(userId);
+    }
+
+    @Test
+    void createCorrect() throws Exception {
+        when(userService.create(any(User.class))).thenReturn(createdUser);
 
         mvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(requestUserDto))
@@ -123,9 +141,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name").value(responseUserDto.getName()))
                 .andExpect(jsonPath("$.email").value(responseUserDto.getEmail()));
 
-        verify(mapper, times(1)).toUser(any(RequestUserDto.class));
         verify(userService, times(1)).create(any(User.class));
-        verify(mapper, times(1)).toResponseDto(any(User.class));
     }
 
     @Test
@@ -153,10 +169,69 @@ class UserControllerTest {
     }
 
     @Test
-    void update() {
+    void updateCorrect() throws Exception {
+        createdUser.setName("update");
+        createdUser.setEmail("update@mail.ru");
+
+        when(userService.update(any(PatchUserDto.class))).thenReturn(createdUser);
+
+        mvc.perform(patch("/users/{userId}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"update\",\"email\":\"update@mail.ru\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("update"))
+                .andExpect(jsonPath("$.email").value("update@mail.ru"));
+
+        verify(userService, times(1)).update(any(PatchUserDto.class));
     }
 
     @Test
-    void delete() {
+    void updateFailEmailExist() throws Exception {
+        when(userService.update(any(PatchUserDto.class))).thenThrow(DuplicateResourceException.class);
+
+        mvc.perform(patch("/users/{userId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"update\",\"email\":\"update@mail.ru\"}"))
+                .andExpect(status().is4xxClientError());
+
+        verify(userService, times(1)).update(any(PatchUserDto.class));
+    }
+
+    @Test
+    void updateFailEmptyName() throws Exception {
+        mvc.perform(patch("/users/{userId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"\",\"email\":\"\"}"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void updateFailIncorrectEmail() throws Exception {
+        mvc.perform(patch("/users/{userId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"name\",\"email\":\"hello\"}"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void deleteCorrect() throws Exception {
+        long userId = 1;
+        doNothing().when(userService).delete(userId);
+
+        mvc.perform(delete("/users/{userId}", userId))
+                .andExpect(status().isOk());
+
+        verify(userService).delete(userId);
+    }
+
+    @Test
+    void deleteNotExistUser() throws Exception {
+        long userId = 1;
+        doThrow(EntityNotFoundException.class).when(userService).delete(userId);
+
+        mvc.perform(delete("/users/{userId}", userId))
+                .andExpect(status().is4xxClientError());
+
+        verify(userService).delete(userId);
     }
 }

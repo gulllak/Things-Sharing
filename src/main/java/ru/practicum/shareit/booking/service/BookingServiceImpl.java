@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking getBookingByUser(Long bookingId, long userId) {
+    public Booking getBookingByUser(long bookingId, long userId) {
         Booking booking = getById(bookingId);
 
         long bookerId = booking.getBooker().getId();

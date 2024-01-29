@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.dto.ResponseBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.controller.ItemController;
@@ -70,7 +71,9 @@ public class BookingController {
     @PostMapping
     public ResponseBookingDto create(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                      @RequestBody @Valid RequestBookingDto requestBookingDto) {
-        return mapper.toResponseBookingDto(bookingService.create(mapper.toBooking(requestBookingDto, userId)));
+        Booking booking = mapper.toBooking(requestBookingDto, userId);
+
+        return mapper.toResponseBookingDto(bookingService.create(booking));
     }
 
     @PatchMapping("/{bookingId}")

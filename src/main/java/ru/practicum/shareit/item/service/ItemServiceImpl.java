@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.mapper.comment.CommentRepositoryMapper;
 import ru.practicum.shareit.item.mapper.item.ItemRepositoryMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -37,12 +38,10 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepositoryMapper itemMapper;
     private final CommentRepositoryMapper commentMapper;
     private final BookingRepositoryMapper bookingMapper;
-
     private final ItemRequestRepositoryMapper itemRequestRepositoryMapper;
 
     @Transactional
@@ -54,7 +53,6 @@ public class ItemServiceImpl implements ItemService {
             ItemRequest itemRequest = itemRequestRepositoryMapper.toItemRequest(itemRequestRepository.findById(item.getRequest().getId()).orElse(null));
             item.setRequest(itemRequest);
         }
-
         return itemMapper.toItem(itemRepository.save(itemMapper.toItemEntity(item)));
     }
 
@@ -113,8 +111,9 @@ public class ItemServiceImpl implements ItemService {
 
         comment.setItem(getById(comment.getAuthor().getId(), comment.getItem().getId()));
         comment.setAuthor(userService.getById(comment.getAuthor().getId()));
+        CommentEntity entity = commentMapper.toCommentEntity(comment);
 
-        return commentMapper.toComment(commentRepository.save(commentMapper.toCommentEntity(comment)));
+        return commentMapper.toComment(commentRepository.save(entity));
     }
 
     private void fillItem(long userId, Item item) {

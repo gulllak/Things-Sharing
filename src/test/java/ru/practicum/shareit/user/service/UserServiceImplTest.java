@@ -1,55 +1,94 @@
 package ru.practicum.shareit.user.service;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.mockito.MockitoAnnotations;
+import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 class UserServiceImplTest {
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
+
     @Mock
-    UserRepositoryMapper mapper;
+    private UserRepositoryMapper mapper;
 
-    UserService userService;
+    @InjectMocks
+    private UserServiceImpl userService;
 
-    User user = new User(1, "Евгений", "user@test.ru");
+    @Mock
+    User user;
+
+    @Mock
+    UserEntity userEntity;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void getAll() {
+        when(userRepository.findAll()).thenReturn(Collections.singletonList(userEntity));
+        when(mapper.toUser(userEntity)).thenReturn(user);
 
+        List<User> users = userService.getAll();
+
+        verify(userRepository, times(1)).findAll();
+        assertEquals(1, users.size());
+        assertEquals(user, users.get(0));
     }
 
     @Test
     void create() {
-        userService = new UserServiceImpl(userRepository, mapper);
-        Mockito.when(userService.create(user))
-                .thenReturn(user);
+        when(mapper.toUserEntity(user)).thenReturn(userEntity);
+        when(userRepository.save(userEntity)).thenReturn(userEntity);
+        when(mapper.toUser(userEntity)).thenReturn(user);
 
-        User saved = userService.create(user);
+        User createdUser = userService.create(user);
 
-        Assertions.assertEquals(user, saved);
+        verify(userRepository, times(1)).save(userEntity);
+        assertEquals(user, createdUser);
     }
 
     @Test
-    void update() {
+    void getByIdCorrect() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(mapper.toUser(userEntity)).thenReturn(user);
+
+        User foundUser = userService.getById(userId);
+
+        verify(userRepository).findById(userId);
+        verify(mapper).toUser(userEntity);
+        assertEquals(user, foundUser);
     }
 
     @Test
-    void getById() {
-    }
+    public void getById_WhenNotFound_ShouldThrowException() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-    @Test
-    void delete() {
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.getById(userId));
+
+        assertTrue(exception.getMessage().contains(String.format("Пользователя с id = %d не существует", userId)));
     }
 }
