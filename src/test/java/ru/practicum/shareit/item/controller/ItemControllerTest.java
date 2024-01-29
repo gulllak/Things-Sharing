@@ -154,7 +154,7 @@ class ItemControllerTest {
                         .header("X-SHARER-USER-ID", userId)
                         .content(objectMapper.writeValueAsString(requestItemDto)))
                 .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));;
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
 
         verify(itemService, times(0)).create(item);
     }
@@ -169,7 +169,7 @@ class ItemControllerTest {
                         .header("X-SHARER-USER-ID", userId)
                         .content(objectMapper.writeValueAsString(requestItemDto)))
                 .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));;
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
 
         verify(itemService, times(0)).create(item);
     }
