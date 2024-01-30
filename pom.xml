@@ -185,6 +185,7 @@
 						<output>file</output>
 						<excludes>
 							<exclude>**/*MapperImpl.class</exclude>
+							<exclude>**/*Mapper.class</exclude>
 						</excludes>
 					</configuration>
 					<executions>
