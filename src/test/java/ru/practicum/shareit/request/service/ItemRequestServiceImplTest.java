@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.request.mapper.ItemRequestRepositoryMapper;
+import ru.practicum.shareit.request.mapper.ItemRequestRepositoryMapperImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
@@ -54,7 +55,6 @@ class ItemRequestServiceImplTest {
     ItemRequest itemRequest;
     ItemRequestEntity itemRequestEntity;
     Item item;
-
 
     @BeforeEach
     void setUp() {
@@ -116,5 +116,13 @@ class ItemRequestServiceImplTest {
         ItemRequest expected = service.getById(userId, requestId);
 
         assertEquals(expected, itemRequest);
+    }
+
+    @Test
+    void repositoryMapperConverterTest() {
+        mapper = new ItemRequestRepositoryMapperImpl();
+        itemRequest = mapper.toItemRequest(itemRequestEntity);
+
+        itemRequestEntity = mapper.toItemRequestEntity(itemRequest);
     }
 }
