@@ -289,4 +289,94 @@ class BookingServiceImplTest {
 
         assertEquals(bookingEntities.size(), result.size());
     }
+
+    @Test
+    void getOwnerBookingsAll() {
+        long userId = 1;
+        BookingState state = BookingState.ALL;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = List.of(bookingEntity);
+        List<Booking> bookings = List.of(booking);
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId, pageable)).thenReturn(bookingEntities);
+
+        List<Booking> expectedBookings = bookingService.getOwnerBookings(userId, state, pageable);
+        assertEquals(expectedBookings, bookings);
+    }
+
+    @Test
+    void getOwnerBookingsPAST() {
+        long userId = 1;
+        BookingState state = BookingState.PAST;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.of(2024, 2, 3, 1, 1), pageable)).thenReturn(bookingEntities);
+
+        List<Booking> result = bookingService.getOwnerBookings(userId, state, pageable);
+
+        assertEquals(bookingEntities.size(), result.size());
+    }
+
+    @Test
+    void getOwnerBookingsFUTURE() {
+        long userId = 1;
+        BookingState state = BookingState.FUTURE;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.of(2024, 2, 3, 1, 1), pageable)).thenReturn(bookingEntities);
+
+        List<Booking> result = bookingService.getOwnerBookings(userId, state, pageable);
+
+        assertEquals(bookingEntities.size(), result.size());
+    }
+
+    @Test
+    void getOwnerBookingsCURRENT() {
+        long userId = 1;
+        BookingState state = BookingState.CURRENT;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdAndCurrentTimeBetweenStartAndEnd(userId, LocalDateTime.of(2024, 2, 3, 1, 1), pageable)).thenReturn(bookingEntities);
+
+        List<Booking> result = bookingService.getOwnerBookings(userId, state, pageable);
+
+        assertEquals(bookingEntities.size(), result.size());
+    }
+
+    @Test
+    void getOwnerBookingsWAITING() {
+        long userId = 1;
+        BookingState state = BookingState.WAITING;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, pageable)).thenReturn(bookingEntities);
+
+        List<Booking> result = bookingService.getOwnerBookings(userId, state, pageable);
+
+        assertEquals(bookingEntities.size(), result.size());
+    }
+
+    @Test
+    void getOwnerBookingsREJECTED() {
+        long userId = 1;
+        BookingState state = BookingState.REJECTED;
+        Pageable pageable = PageRequest.of(0 / 10, 10);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+
+        when(userService.getById(booker.getId())).thenReturn(booker);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, pageable)).thenReturn(bookingEntities);
+
+        List<Booking> result = bookingService.getOwnerBookings(userId, state, pageable);
+
+        assertEquals(bookingEntities.size(), result.size());
+    }
 }
