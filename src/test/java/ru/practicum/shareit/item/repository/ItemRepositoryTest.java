@@ -21,7 +21,6 @@ class ItemRepositoryTest {
     @Autowired
     ItemRepository itemRepository;
 
-
     @BeforeEach
     void setUp() {
         ItemEntity item1 = new ItemEntity();
