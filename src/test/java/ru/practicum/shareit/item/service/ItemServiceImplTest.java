@@ -67,7 +67,6 @@ class ItemServiceImplTest {
     ItemEntity itemEntity;
     ItemRequest itemRequest;
 
-
     @BeforeEach
     void setUp() {
         itemRequest = new ItemRequest(1L, "Описание", owner, null, null);
@@ -83,7 +82,6 @@ class ItemServiceImplTest {
         itemEntity.setName("Дрель");
         itemEntity.setDescription("Ударная");
         itemEntity.setOwner(userEntity);
-
     }
 
     @Test

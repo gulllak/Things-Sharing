@@ -37,7 +37,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User update(PatchUserDto userDto) {
-        UserEntity entity = mapper.toUserEntity(getById(userDto.getId()));
+        UserEntity entity = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d не существует", userDto.getId())));
 
         return mapper.toUser(userRepository.save(mapper.toUser(userDto, entity)));
     }

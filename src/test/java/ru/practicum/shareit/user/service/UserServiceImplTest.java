@@ -17,10 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -94,6 +97,34 @@ class UserServiceImplTest {
 
         assertTrue(exception.getMessage().contains(String.format("Пользователя с id = %d не существует", userId)));
     }
+
+    @Test
+    public void testUpdate() {
+        PatchUserDto userDto = new PatchUserDto();
+        userDto.setId(1L);
+        userDto.setName("new");
+
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(userEntity));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(mapper.toUser(any(PatchUserDto.class), any(UserEntity.class))).thenReturn(userEntity);
+        when(mapper.toUser(any(UserEntity.class))).thenReturn(user);
+
+        User actualUser = userService.update(userDto);
+
+        assertThat(actualUser).isEqualTo(user);
+    }
+
+    @Test
+    public void testDelete() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(mapper.toUser(userEntity)).thenReturn(user);
+        doNothing().when(userRepository).deleteById(userId);
+
+        userService.delete(userId);
+        verify(userRepository).deleteById(userId);
+    }
+
 
     @Test
     void repositoryMapperConverterTest() {
