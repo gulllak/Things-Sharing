@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 public interface ItemRepositoryMapper {
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "requestId", source = "request.id")
     Item toItem(ItemEntity item);
 
     ItemEntity toItemEntity(Item item);

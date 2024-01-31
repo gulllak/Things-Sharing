@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.entity.BookingEntity;
@@ -10,6 +12,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.mapper.comment.CommentRepositoryMapper;
 import ru.practicum.shareit.item.mapper.item.ItemRepositoryMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -17,6 +20,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.mapper.ItemRequestRepositoryMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -33,15 +39,21 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemRepositoryMapper itemMapper;
     private final CommentRepositoryMapper commentMapper;
     private final BookingRepositoryMapper bookingMapper;
+    private final ItemRequestRepositoryMapper itemRequestRepositoryMapper;
 
     @Transactional
     @Override
     public Item create(Item item) {
         item.setOwner(userService.getById(item.getOwner().getId()));
 
+        if (item.getRequest() != null) {
+            ItemRequest itemRequest = itemRequestRepositoryMapper.toItemRequest(itemRequestRepository.findById(item.getRequest().getId()).orElse(null));
+            item.setRequest(itemRequest);
+        }
         return itemMapper.toItem(itemRepository.save(itemMapper.toItemEntity(item)));
     }
 
@@ -56,22 +68,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllUserItems(long userId) {
+    public List<Item> getAllUserItems(long userId, int from, int size) {
         isUserExists(userId);
 
-        return itemRepository.findAllByOwnerIdOrderById(userId).stream()
+        return itemRepository.findAllByOwnerIdOrderById(userId, getPageable(from, size)).stream()
                 .map(itemMapper::toItem)
                 .peek(item -> fillItem(userId, item))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> itemSearch(long userId, String searchString) {
+    public List<Item> itemSearch(long userId, String searchString, int from, int size) {
         isUserExists(userId);
 
         return searchString.isBlank()
                 ? new ArrayList<>()
-                : itemRepository.search(searchString).stream()
+                : itemRepository.search(searchString, getPageable(from, size)).stream()
                 .map(itemMapper::toItem)
                 .collect(Collectors.toList());
     }
@@ -100,8 +112,9 @@ public class ItemServiceImpl implements ItemService {
 
         comment.setItem(getById(comment.getAuthor().getId(), comment.getItem().getId()));
         comment.setAuthor(userService.getById(comment.getAuthor().getId()));
+        CommentEntity entity = commentMapper.toCommentEntity(comment);
 
-        return commentMapper.toComment(commentRepository.save(commentMapper.toCommentEntity(comment)));
+        return commentMapper.toComment(commentRepository.save(entity));
     }
 
     private void fillItem(long userId, Item item) {
@@ -125,5 +138,9 @@ public class ItemServiceImpl implements ItemService {
 
     private void isUserExists(long userId) {
         userService.getById(userId);
+    }
+
+    private Pageable getPageable(int from, int size) {
+        return PageRequest.of(from / size, size);
     }
 }

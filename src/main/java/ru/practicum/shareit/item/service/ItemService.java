@@ -10,9 +10,9 @@ public interface ItemService {
 
     Item getById(long userId, long itemId);
 
-    List<Item> getAllUserItems(long userId);
+    List<Item> getAllUserItems(long userId, int from, int size);
 
-    List<Item> itemSearch(long userId, String searchString);
+    List<Item> itemSearch(long userId, String searchString, int from, int size);
 
     Item update(Item item);
 

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.entity;
 
 import lombok.Data;
+import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.user.entity.UserEntity;
 
 import javax.persistence.Column;
@@ -32,4 +33,7 @@ public class ItemEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id")
+    private ItemRequestEntity request;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item.dto.item;
 
 import lombok.Data;
 
@@ -16,4 +16,5 @@ public class RequestItemDto {
     private String description;
     @NotNull(message = "Необходимо указать статус доступности товара")
     private Boolean available;
+    private Long requestId;
 }
