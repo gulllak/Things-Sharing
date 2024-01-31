@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -58,10 +60,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequest> getAllItemRequest(long userId, Pageable pageable) {
+    public List<ItemRequest> getAllItemRequest(long userId, int from, int size) {
         isUserExists(userId);
 
-        return itemRequestRepository.findAllByRequestorIdNot(userId, pageable).stream()
+        return itemRequestRepository.findAllByRequestorIdNot(userId, getPageable(from, size)).stream()
                 .map(mapper::toItemRequest)
                 .peek(itemRequest -> {
                     final List<Item> items = itemRepository.findAllByRequestId(itemRequest.getId()).stream()
@@ -89,5 +91,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private void isUserExists(long userId) {
         userService.getById(userId);
+    }
+
+    private Pageable getPageable(int from, int size) {
+        return PageRequest.of(from / size, size, Sort.by("id").descending());
     }
 }

@@ -1,8 +1,6 @@
 package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -42,28 +40,24 @@ public class BookingController {
 
     @GetMapping
     public List<ResponseBookingDto> getUserBookings(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
-                                                    @RequestParam(value = "state", required = false, defaultValue = "ALL") BookingState state,
-                                                    @RequestParam(value = "from", required = false, defaultValue = "0")
+                                                    @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+                                                    @RequestParam(value = "from", defaultValue = "0")
                                                         @Min(value = 0, message = "Начало не может быть отрицательным") int from,
-                                                    @RequestParam(value = "size", required = false, defaultValue = "10")
+                                                    @RequestParam(value = "size", defaultValue = "10")
                                                         @Min(value = 1, message = "Размер должен быть больше 0") int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        return bookingService.getUserBookings(userId, state, pageable).stream()
+        return bookingService.getUserBookings(userId, state, from, size).stream()
                 .map(mapper::toResponseBookingDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
     public List<ResponseBookingDto> getOwnerBookings(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
-                                                     @RequestParam(value = "state", required = false, defaultValue = "ALL") BookingState state,
-                                                     @RequestParam(value = "from", required = false, defaultValue = "0")
+                                                     @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+                                                     @RequestParam(value = "from", defaultValue = "0")
                                                          @Min(value = 0, message = "Начало не может быть отрицательным") int from,
-                                                     @RequestParam(value = "size", required = false, defaultValue = "10")
+                                                     @RequestParam(value = "size", defaultValue = "10")
                                                          @Min(value = 1, message = "Размер должен быть больше 0") int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        return bookingService.getOwnerBookings(userId, state, pageable).stream()
+        return bookingService.getOwnerBookings(userId, state, from, size).stream()
                 .map(mapper::toResponseBookingDto)
                 .collect(Collectors.toList());
     }
@@ -79,7 +73,7 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public ResponseBookingDto updateStatus(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
                                            @PathVariable("bookingId") Long bookingId,
-                                           @RequestParam(value = "approved", required = true) boolean isStatus) {
+                                           @RequestParam(value = "approved") boolean isStatus) {
         return mapper.toResponseBookingDto(bookingService.updateStatus(userId, bookingId, isStatus));
     }
 

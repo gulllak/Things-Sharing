@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
@@ -119,12 +117,11 @@ class BookingControllerTest {
         int from = 0;
         int size = 10;
         BookingState bookingState = BookingState.ALL;
-        Pageable pageable = PageRequest.of(from / size, size);
 
         List<ResponseBookingDto> responseBookingDtos = List.of(responseBookingDto);
         List<Booking> bookings = List.of(booking);
 
-        when(bookingService.getUserBookings(any(Long.class), any(BookingState.class), any(Pageable.class))).thenReturn(bookings);
+        when(bookingService.getUserBookings(any(Long.class), any(BookingState.class), any(Integer.class), any(Integer.class))).thenReturn(bookings);
         when(mapper.toResponseBookingDto(any(Booking.class))).thenReturn(responseBookingDto);
 
         mvc.perform(get("/bookings")
@@ -139,7 +136,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(BookingStatus.WAITING.toString())))
                 .andExpect(jsonPath("$[0].booker.id", is(1)))
                 .andExpect(jsonPath("$[0].item.id", is(1)));
-        verify(bookingService, times(1)).getUserBookings(userId, bookingState, pageable);
+        verify(bookingService, times(1)).getUserBookings(userId, bookingState, from, size);
     }
 
     @Test
@@ -148,9 +145,8 @@ class BookingControllerTest {
         int from = 0;
         int size = 10;
         BookingState bookingState = BookingState.ALL;
-        Pageable pageable = PageRequest.of(from / size, size);
 
-        when(bookingService.getUserBookings(any(Long.class), any(BookingState.class), any(Pageable.class))).thenThrow(EntityNotFoundException.class);
+        when(bookingService.getUserBookings(any(Long.class), any(BookingState.class), any(Integer.class), any(Integer.class))).thenThrow(EntityNotFoundException.class);
 
         mvc.perform(get("/bookings")
                         .header("X-SHARER-USER-ID", userId)
@@ -158,7 +154,7 @@ class BookingControllerTest {
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size)))
                 .andExpect(status().is4xxClientError());
-        verify(bookingService, times(1)).getUserBookings(userId, bookingState, pageable);
+        verify(bookingService, times(1)).getUserBookings(userId, bookingState, from, size);
     }
 
     @Test
@@ -167,12 +163,11 @@ class BookingControllerTest {
         int from = 0;
         int size = 10;
         BookingState bookingState = BookingState.ALL;
-        Pageable pageable = PageRequest.of(from / size, size);
 
         List<ResponseBookingDto> responseBookingDtos = List.of(responseBookingDto);
         List<Booking> bookings = List.of(booking);
 
-        when(bookingService.getOwnerBookings(any(Long.class), any(BookingState.class), any(Pageable.class))).thenReturn(bookings);
+        when(bookingService.getOwnerBookings(any(Long.class), any(BookingState.class), any(Integer.class), any(Integer.class))).thenReturn(bookings);
         when(mapper.toResponseBookingDto(any(Booking.class))).thenReturn(responseBookingDto);
 
         mvc.perform(get("/bookings/owner")
@@ -187,7 +182,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(BookingStatus.WAITING.toString())))
                 .andExpect(jsonPath("$[0].booker.id", is(1)))
                 .andExpect(jsonPath("$[0].item.id", is(1)));
-        verify(bookingService, times(1)).getOwnerBookings(userId, bookingState, pageable);
+        verify(bookingService, times(1)).getOwnerBookings(userId, bookingState, from, size);
     }
 
     @Test

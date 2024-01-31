@@ -1,9 +1,6 @@
 package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,13 +49,11 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ResponseItemRequestWithProposalDto> getAllItemRequest(@RequestHeader(value = ItemController.X_SHARER_USER_ID) long userId,
-                                                          @RequestParam(value = "from", required = false, defaultValue = "0")
+                                                          @RequestParam(value = "from", defaultValue = "0")
                                                           @Min(value = 0, message = "Начало не может быть отрицательным") int from,
-                                                          @RequestParam(value = "size", required = false, defaultValue = "10")
+                                                          @RequestParam(value = "size", defaultValue = "10")
                                                               @Min(value = 1, message = "Размер должен быть больше 0") int size) {
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
-
-        return service.getAllItemRequest(userId, pageable).stream()
+        return service.getAllItemRequest(userId, from, size).stream()
                 .map(mapper::toResponseItemRequestWithProposalDto)
                 .collect(Collectors.toList());
     }

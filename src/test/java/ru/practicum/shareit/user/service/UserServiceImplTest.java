@@ -122,6 +122,7 @@ class UserServiceImplTest {
         doNothing().when(userRepository).deleteById(userId);
 
         userService.delete(userId);
+
         verify(userRepository).deleteById(userId);
     }
 
@@ -139,8 +140,8 @@ class UserServiceImplTest {
         assertEquals(userEntity.getName(), "update");
 
         userEntity = null;
-
         user = mapper.toUser(userEntity);
+
         assertNull(user);
     }
 }

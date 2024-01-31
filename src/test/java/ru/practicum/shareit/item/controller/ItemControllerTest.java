@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BindException;
@@ -210,11 +208,10 @@ class ItemControllerTest {
         int from = 0;
         int size = 10;
 
-        Pageable pageable = PageRequest.of(from / size, size);
         List<Item> items = List.of(itemCreated);
         List<ResponseItemDto> responseItemDtos = List.of(responseItemDto);
 
-        when(itemService.getAllUserItems(userId, pageable)).thenReturn(items);
+        when(itemService.getAllUserItems(userId, from, size)).thenReturn(items);
         when(itemMapper.toResponseDto(any(Item.class))).thenReturn(responseItemDto);
 
         mvc.perform(get("/items")
@@ -228,7 +225,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[0].name", is("Дрель")))
                 .andExpect(jsonPath("$[0].description", is("Стробящая")));
 
-        verify(itemService, times(1)).getAllUserItems(userId, pageable);
+        verify(itemService, times(1)).getAllUserItems(userId, from, size);
     }
 
     @Test
@@ -238,11 +235,10 @@ class ItemControllerTest {
         int from = 0;
         int size = 10;
 
-        Pageable pageable = PageRequest.of(from / size, size);
         List<Item> items = List.of(itemCreated);
         List<ResponseItemDto> responseItemDtos = List.of(responseItemDto);
 
-        when(itemService.itemSearch(userId, text, pageable)).thenReturn(items);
+        when(itemService.itemSearch(userId, text, from, size)).thenReturn(items);
         when(itemMapper.toResponseDto(any(Item.class))).thenReturn(responseItemDto);
 
         mvc.perform(get("/items/search")
@@ -254,7 +250,7 @@ class ItemControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(responseItemDtos)))
                 .andExpect(jsonPath("$", hasSize(1)));
 
-        verify(itemService, times(1)).itemSearch(userId, text, pageable);
+        verify(itemService, times(1)).itemSearch(userId, text, from, size);
     }
 
     @Test

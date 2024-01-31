@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BindException;
@@ -168,7 +167,7 @@ class ItemRequestControllerTest {
         List<ItemRequest> itemRequests = List.of(createdItemRequest);
         List<ResponseItemRequestWithProposalDto> response = List.of(responseItemRequestWithProposalDto);
 
-        when(itemRequestService.getAllItemRequest(any(Long.class), any(Pageable.class))).thenReturn(itemRequests);
+        when(itemRequestService.getAllItemRequest(any(Long.class), any(Integer.class), any(Integer.class))).thenReturn(itemRequests);
         when(mapper.toResponseItemRequestWithProposalDto(any(ItemRequest.class))).thenReturn(responseItemRequestWithProposalDto);
 
         mvc.perform(get("/requests/all")
@@ -181,7 +180,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].description", is("Add comment from user1")))
                 .andExpect(jsonPath("$[0].items[0].id", is(1)));
 
-        verify(itemRequestService, times(1)).getAllItemRequest(any(Long.class), any(Pageable.class));
+        verify(itemRequestService, times(1)).getAllItemRequest(userId, from, size);
     }
 
     @Test

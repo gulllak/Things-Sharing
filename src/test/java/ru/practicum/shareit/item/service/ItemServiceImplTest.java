@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingRepositoryMapper;
@@ -138,7 +137,8 @@ class ItemServiceImplTest {
     @Test
     void getAllUserItems() {
         long userId = 1;
-        Pageable pageable = PageRequest.of(0 / 10, 10);
+        int from = 0;
+        int size = 10;
 
         List<ItemEntity> itemEntities = List.of(itemEntity);
 
@@ -147,7 +147,7 @@ class ItemServiceImplTest {
         when(itemMapper.toItem(any(ItemEntity.class))).thenReturn(item);
         when(itemMapper.toItemEntity(any(Item.class))).thenReturn(itemEntity);
 
-        List<Item> expectedList = itemService.getAllUserItems(userId, pageable);
+        List<Item> expectedList = itemService.getAllUserItems(userId, from, size);
 
         assertEquals(expectedList, List.of(item));
     }
@@ -155,14 +155,16 @@ class ItemServiceImplTest {
     @Test
     void itemSearchCorrect() {
         long userId = 1;
+        int from = 0;
+        int size = 10;
         String text = "рел";
-        Pageable pageable = PageRequest.of(0 / 10, 10);
+
         List<ItemEntity> itemEntities = List.of(itemEntity);
 
         when(itemRepository.search(any(String.class), any(Pageable.class))).thenReturn(itemEntities);
         when(itemMapper.toItem(any(ItemEntity.class))).thenReturn(item);
 
-        List<Item> expectedList = itemService.itemSearch(userId, text, pageable);
+        List<Item> expectedList = itemService.itemSearch(userId, text, from, size);
         assertEquals(expectedList, List.of(item));
     }
 
@@ -170,9 +172,10 @@ class ItemServiceImplTest {
     void itemSearchWithEmptyText() {
         long userId = 1;
         String text = "";
-        Pageable pageable = PageRequest.of(0 / 10, 10);
+        int from = 0;
+        int size = 10;
 
-        List<Item> expectedList = itemService.itemSearch(userId, text, pageable);
+        List<Item> expectedList = itemService.itemSearch(userId, text, from, size);
         assertEquals(expectedList, new ArrayList<>());
     }
 

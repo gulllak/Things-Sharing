@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -56,13 +54,11 @@ public class ItemController {
 
     @GetMapping
     public List<ResponseItemDto> getAllUserItems(@RequestHeader(value = X_SHARER_USER_ID) long userId,
-                                                 @RequestParam(value = "from", required = false, defaultValue = "0")
+                                                 @RequestParam(value = "from", defaultValue = "0")
                                                  @Min(value = 0, message = "Начало не может быть отрицательным") int from,
-                                                 @RequestParam(value = "size", required = false, defaultValue = "10")
+                                                 @RequestParam(value = "size", defaultValue = "10")
                                                      @Min(value = 1, message = "Размер должен быть больше 0") int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        return itemService.getAllUserItems(userId, pageable).stream()
+        return itemService.getAllUserItems(userId, from, size).stream()
                 .map(itemMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
@@ -70,13 +66,11 @@ public class ItemController {
     @GetMapping("/search")
     public List<ResponseItemDto> itemSearch(@RequestHeader(value = X_SHARER_USER_ID) long userId,
                                             @RequestParam("text") String searchString,
-                                            @RequestParam(value = "from", required = false, defaultValue = "0")
+                                            @RequestParam(value = "from", defaultValue = "0")
                                                 @Min(value = 0, message = "Начало не может быть отрицательным") int from,
-                                            @RequestParam(value = "size", required = false, defaultValue = "10")
+                                            @RequestParam(value = "size", defaultValue = "10")
                                                 @Min(value = 1, message = "Размер должен быть больше 0") int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        return itemService.itemSearch(userId, searchString, pageable).stream()
+        return itemService.itemSearch(userId, searchString, from, size).stream()
                 .map(itemMapper::toResponseDto)
                 .collect(Collectors.toList());
     }

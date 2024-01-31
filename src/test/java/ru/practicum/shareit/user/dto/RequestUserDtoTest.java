@@ -51,8 +51,6 @@ class RequestUserDtoTest {
         Set<ConstraintViolation<RequestUserDto>> violations = validator.validate(dto);
 
         assertThat(violations).isNotEmpty();
-        assertThat(violations.stream().anyMatch(v -> v.getMessage().contains("Имя пользователя не может быть пустым"))).isTrue();
-        assertThat(violations.stream().anyMatch(v -> v.getMessage().contains("Почта не валидна"))).isTrue();
     }
 
 

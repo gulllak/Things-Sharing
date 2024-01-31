@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.item.ItemRepositoryMapper;
@@ -95,13 +94,14 @@ class ItemRequestServiceImplTest {
     @Test
     void getAllItemRequest() {
         long userId = 1;
+        int from = 0;
+        int size = 10;
         List<ItemRequest> itemRequests = List.of(itemRequest);
-        Pageable pageable = PageRequest.of(0 / 10, 10);
         List<ItemRequestEntity> itemRequestEntities = List.of(itemRequestEntity);
 
         when(itemRequestRepository.findAllByRequestorIdNot(any(Long.class), any(Pageable.class))).thenReturn(itemRequestEntities);
 
-        List<ItemRequest> expectedItemRequests = service.getAllItemRequest(userId, pageable);
+        List<ItemRequest> expectedItemRequests = service.getAllItemRequest(userId, from, size);
         assertEquals(expectedItemRequests, itemRequests);
     }
 

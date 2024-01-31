@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,22 +68,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllUserItems(long userId, Pageable pageable) {
+    public List<Item> getAllUserItems(long userId, int from, int size) {
         isUserExists(userId);
 
-        return itemRepository.findAllByOwnerIdOrderById(userId, pageable).stream()
+        return itemRepository.findAllByOwnerIdOrderById(userId, getPageable(from, size)).stream()
                 .map(itemMapper::toItem)
                 .peek(item -> fillItem(userId, item))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> itemSearch(long userId, String searchString, Pageable pageable) {
+    public List<Item> itemSearch(long userId, String searchString, int from, int size) {
         isUserExists(userId);
 
         return searchString.isBlank()
                 ? new ArrayList<>()
-                : itemRepository.search(searchString, pageable).stream()
+                : itemRepository.search(searchString, getPageable(from, size)).stream()
                 .map(itemMapper::toItem)
                 .collect(Collectors.toList());
     }
@@ -137,5 +138,9 @@ public class ItemServiceImpl implements ItemService {
 
     private void isUserExists(long userId) {
         userService.getById(userId);
+    }
+
+    private Pageable getPageable(int from, int size) {
+        return PageRequest.of(from / size, size);
     }
 }
