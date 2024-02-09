@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.BindException;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.item.dto.comment.RequestCommentDto;
 import ru.practicum.server.item.dto.comment.ResponseCommentDto;
@@ -30,7 +29,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -125,51 +123,6 @@ class ItemControllerTest {
                 .andExpect(status().is4xxClientError());
 
         verify(itemService, times(1)).create(item);
-    }
-
-    @Test
-    void createWithoutAvailable() throws Exception {
-        requestItemDto.setAvailable(null);
-        long userId = 1;
-
-        mvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
-                        .content(objectMapper.writeValueAsString(requestItemDto)))
-                .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-
-        verify(itemService, times(0)).create(item);
-    }
-
-    @Test
-    void createWithEmptyName() throws Exception {
-        requestItemDto.setName("");
-        long userId = 1;
-
-        mvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
-                        .content(objectMapper.writeValueAsString(requestItemDto)))
-                .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-
-        verify(itemService, times(0)).create(item);
-    }
-
-    @Test
-    void createWithEmptyDescription() throws Exception {
-        requestItemDto.setDescription("");
-        long userId = 1;
-
-        mvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
-                        .content(objectMapper.writeValueAsString(requestItemDto)))
-                .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-
-        verify(itemService, times(0)).create(item);
     }
 
     @Test
@@ -292,42 +245,6 @@ class ItemControllerTest {
 
         mvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(patchItemDto)))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void updateFailEmptyName() throws Exception {
-        long itemId = 1;
-        long userId = 1;
-
-        PatchItemDto patchItemDto = new PatchItemDto();
-        patchItemDto.setId(1L);
-        patchItemDto.setName("");
-        patchItemDto.setDescription("update");
-        patchItemDto.setAvailable(true);
-
-        mvc.perform(patch("/items/{itemId}", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
-                        .content(objectMapper.writeValueAsString(patchItemDto)))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void updateFailEmptyDescription() throws Exception {
-        long itemId = 1;
-        long userId = 1;
-
-        PatchItemDto patchItemDto = new PatchItemDto();
-        patchItemDto.setId(1L);
-        patchItemDto.setName("update");
-        patchItemDto.setDescription("");
-        patchItemDto.setAvailable(true);
-
-        mvc.perform(patch("/items/{itemId}", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
                         .content(objectMapper.writeValueAsString(patchItemDto)))
                 .andExpect(status().is4xxClientError());
     }

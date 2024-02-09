@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.BindException;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.item.dto.item.ResponseItemForRequest;
 import ru.practicum.server.item.model.Item;
@@ -26,7 +25,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -107,22 +105,6 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is("Add comment from user1")));
 
         verify(itemRequestService, times(1)).create(createdItemRequest);
-    }
-
-    @Test
-    void createCommentEmpty() throws Exception {
-        long userId = 1;
-
-        requestItemRequestDto.setDescription("");
-
-        mvc.perform(post("/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-SHARER-USER-ID", userId)
-                        .content(objectMapper.writeValueAsString(requestItemRequestDto)))
-                .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-
-        verify(itemRequestService, times(0)).create(createdItemRequest);
     }
 
     @Test

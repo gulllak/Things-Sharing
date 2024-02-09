@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -20,8 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.BindException;
-import ru.practicum.server.exception.DuplicateResourceException;
+ import ru.practicum.server.exception.DuplicateResourceException;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.user.dto.PatchUserDto;
 import ru.practicum.server.user.dto.RequestUserDto;
@@ -145,30 +143,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createWithEmptyNameShouldGive400() throws Exception {
-        requestUserDto.setName("");
-
-        mvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(requestUserDto))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept("*/*"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-    }
-
-    @Test
-    void createWithEmptyEmailShouldGive400() throws Exception {
-        requestUserDto.setEmail("");
-
-        mvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(requestUserDto))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept("*/*"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BindException));
-    }
-
-    @Test
     void updateCorrect() throws Exception {
         createdUser.setName("update");
         createdUser.setEmail("update@mail.ru");
@@ -195,22 +169,6 @@ class UserControllerTest {
                 .andExpect(status().is4xxClientError());
 
         verify(userService, times(1)).update(any(PatchUserDto.class));
-    }
-
-    @Test
-    void updateFailEmptyName() throws Exception {
-        mvc.perform(patch("/users/{userId}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"\",\"email\":\"\"}"))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void updateFailIncorrectEmail() throws Exception {
-        mvc.perform(patch("/users/{userId}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"name\",\"email\":\"hello\"}"))
-                .andExpect(status().is4xxClientError());
     }
 
     @Test
