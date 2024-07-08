@@ -1,8 +1,8 @@
-CREATE SEQUENCE users_id_seq;
-CREATE SEQUENCE items_id_seq;
-CREATE SEQUENCE bookings_id_seq;
-CREATE SEQUENCE requests_id_seq;
-CREATE SEQUENCE comments_id_seq;
+CREATE SEQUENCE if not exists users_id_seq ;
+CREATE SEQUENCE if not exists items_id_seq;
+CREATE SEQUENCE if not exists bookings_id_seq;
+CREATE SEQUENCE if not exists requests_id_seq;
+CREATE SEQUENCE if not exists comments_id_seq;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT NOT NULL default nextval('users_id_seq') PRIMARY KEY,
