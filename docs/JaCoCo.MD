@@ -95,5 +95,5 @@
     </profile>
 </profiles>
 ```
-5. Активируем профиль и выполняем команду `mvn clean test`
+5. Выполняем команду `mvn clean test -P coverage`
 6. Изучаем отчет о покрытии, открыв файл `index.html` в браузере находящийся по пути `target/site/jacoco/index.html`
