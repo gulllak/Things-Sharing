@@ -6,15 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.server.request.mapper.ItemRequestRepositoryMapper;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.item.mapper.item.ItemRepositoryMapper;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.ItemRepository;
-import ru.practicum.server.request.entity.ItemRequestEntity;
+import ru.practicum.server.request.mapper.ItemRequestRepositoryMapper;
 import ru.practicum.server.request.model.ItemRequest;
 import ru.practicum.server.request.repository.ItemRequestRepository;
-import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.service.UserService;
 
 import java.util.List;
@@ -36,12 +34,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Transactional
     @Override
     public ItemRequest create(ItemRequest itemRequest) {
-        User user = userService.getById(itemRequest.getRequestor().getId());
-        itemRequest.setRequestor(user);
-
-        ItemRequestEntity entity = mapper.toItemRequestEntity(itemRequest);
-
-        return mapper.toItemRequest(itemRequestRepository.save(entity));
+        itemRequest.setRequestor(userService.getById(itemRequest.getRequestor().getId()));
+        return mapper.toItemRequest(itemRequestRepository.save(mapper.toItemRequestEntity(itemRequest)));
     }
 
     @Override
@@ -50,13 +44,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequestRepository.findAllByRequestorId(userId).stream()
                 .map(mapper::toItemRequest)
-                .peek(itemRequest -> {
-                    final List<Item> items = itemRepository.findAllByRequestId(itemRequest.getId()).stream()
-                            .map(itemRepositoryMapper::toItem)
-                            .collect(Collectors.toList());
-
-                    itemRequest.setItems(items);
-                }).collect(Collectors.toList());
+                .peek(itemRequest ->
+                        itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest.getId()).stream()
+                        .map(itemRepositoryMapper::toItem)
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -65,13 +57,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequestRepository.findAllByRequestorIdNot(userId, getPageable(from, size)).stream()
                 .map(mapper::toItemRequest)
-                .peek(itemRequest -> {
-                    final List<Item> items = itemRepository.findAllByRequestId(itemRequest.getId()).stream()
-                            .map(itemRepositoryMapper::toItem)
-                            .collect(Collectors.toList());
-
-                    itemRequest.setItems(items);
-                })
+                .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest.getId()).stream()
+                        .map(itemRepositoryMapper::toItem)
+                        .collect(Collectors.toList())))
                 .collect(Collectors.toList());
     }
 
