@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.item.mapper.item.ItemRepositoryMapper;
-import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.request.mapper.ItemRequestRepositoryMapper;
 import ru.practicum.server.request.model.ItemRequest;
@@ -24,12 +23,10 @@ import java.util.stream.Collectors;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
-
     private final ItemRepositoryMapper itemRepositoryMapper;
-
     private final ItemRequestRepositoryMapper mapper;
-
     private final UserService userService;
+
 
     @Transactional
     @Override
@@ -41,7 +38,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequest> getUserRequests(long userId) {
         isUserExists(userId);
-
         return itemRequestRepository.findAllByRequestorId(userId).stream()
                 .map(mapper::toItemRequest)
                 .peek(itemRequest ->
@@ -57,7 +53,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequestRepository.findAllByRequestorIdNot(userId, getPageable(from, size)).stream()
                 .map(mapper::toItemRequest)
-                .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest.getId()).stream()
+                .peek(itemRequest ->
+                        itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest.getId()).stream()
                         .map(itemRepositoryMapper::toItem)
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
@@ -69,10 +66,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         ItemRequest itemRequest = mapper.toItemRequest(itemRequestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException("Такого запроса не существует")));
 
-        final List<Item> items = itemRepository.findAllByRequestId(itemRequest.getId()).stream()
+        itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest.getId()).stream()
                 .map(itemRepositoryMapper::toItem)
-                .collect(Collectors.toList());
-        itemRequest.setItems(items);
+                .collect(Collectors.toList()));
 
         return itemRequest;
     }

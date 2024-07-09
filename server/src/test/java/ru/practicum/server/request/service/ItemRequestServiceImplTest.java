@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.item.entity.ItemEntity;
 import ru.practicum.server.item.mapper.item.ItemRepositoryMapper;
 import ru.practicum.server.item.model.Item;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,11 +71,24 @@ class ItemRequestServiceImplTest {
 
     @Test
     void create() {
-        when(itemRequestRepository.save(any(ItemRequestEntity.class))).thenReturn(itemRequestEntity);
+        when(userService.getById(user.getId())).thenReturn(user);
+        when(mapper.toItemRequestEntity(itemRequest)).thenReturn(itemRequestEntity);
+        when(itemRequestRepository.save(itemRequestEntity)).thenReturn(itemRequestEntity);
+        when(mapper.toItemRequest(itemRequestEntity)).thenReturn(itemRequest);
 
         ItemRequest expected = service.create(itemRequest);
 
         assertEquals(expected, itemRequest);
+        assertEquals(expected.getId(), itemRequest.getId());
+        assertEquals(expected.getDescription(), itemRequest.getDescription());
+        assertEquals(expected.getRequestor(), itemRequest.getRequestor());
+    }
+
+    @Test
+    void create_whenRequestorNotExist() {
+        when(userService.getById(1L)).thenThrow(new EntityNotFoundException("Пользователя с id = 1 не существует"));
+
+        assertThrows(EntityNotFoundException.class, () -> service.create(itemRequest));
     }
 
     @Test
