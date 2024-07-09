@@ -77,13 +77,6 @@
 			<version>${org.mapstruct.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.10.3</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- PITest JUnit 5 Plugin -->
 		<dependency>
 			<groupId>org.pitest</groupId>
@@ -101,6 +94,11 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.3.0</version>
+				</plugin>
 
 				<!-- Spring Boot Maven Plugin -->
 				<plugin>
@@ -148,12 +146,6 @@
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>0.8.12</version>
-					<configuration>
-						<excludes>
-							<exclude>**/*MapperImpl.class</exclude>
-							<exclude>**/*Mapper.class</exclude>
-						</excludes>
-					</configuration>
 					<executions>
 						<execution>
 							<id>jacoco-initialize</id>
@@ -189,6 +181,10 @@
 										</limits>
 									</rule>
 								</rules>
+								<excludes>
+									<exclude>**/*MapperImpl.class</exclude>
+									<exclude>**/*Mapper.class</exclude>
+								</excludes>
 							</configuration>
 						</execution>
 						<execution>
