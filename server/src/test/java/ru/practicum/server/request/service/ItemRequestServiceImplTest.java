@@ -28,7 +28,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +83,9 @@ class ItemRequestServiceImplTest {
         assertEquals(expected.getId(), itemRequest.getId());
         assertEquals(expected.getDescription(), itemRequest.getDescription());
         assertEquals(expected.getRequestor(), itemRequest.getRequestor());
+
+        verify(userService).getById(user.getId());
+        verify(itemRequestRepository).save(itemRequestEntity);
     }
 
     @Test
@@ -89,6 +93,9 @@ class ItemRequestServiceImplTest {
         when(userService.getById(1L)).thenThrow(new EntityNotFoundException("Пользователя с id = 1 не существует"));
 
         assertThrows(EntityNotFoundException.class, () -> service.create(itemRequest));
+
+        verify(userService).getById(1L);
+        verify(itemRequestRepository, never()).save(any());
     }
 
     @Test
