@@ -273,10 +273,20 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-pmd-plugin</artifactId>
 					<version>3.23.0</version>
+					<configuration>
+						<failOnViolation>true</failOnViolation>
+						<printFailingErrors>true</printFailingErrors>
+						<linkXRef>true</linkXRef>
+						<rulesets>
+							<ruleset>custom.xml</ruleset>
+						</rulesets>
+					</configuration>
 					<executions>
 						<execution>
+							<phase>verify</phase>
 							<goals>
-								<goal>check</goal>
+								<goal>pmd</goal>
+								<goal>cpd</goal>
 							</goals>
 						</execution>
 					</executions>
