@@ -168,6 +168,13 @@
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>0.8.12</version>
+					<configuration>
+						<output>file</output>
+						<excludes>
+							<exclude>**/*MapperImpl.class</exclude>
+							<exclude>**/*Mapper.class</exclude>
+						</excludes>
+					</configuration>
 					<executions>
 						<execution>
 							<id>jacoco-initialize</id>
@@ -203,10 +210,6 @@
 										</limits>
 									</rule>
 								</rules>
-								<excludes>
-									<exclude>**/*MapperImpl.class</exclude>
-									<exclude>**/*Mapper.class</exclude>
-								</excludes>
 							</configuration>
 						</execution>
 						<execution>
