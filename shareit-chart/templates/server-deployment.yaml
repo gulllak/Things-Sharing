@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server
+  name: {{ .Release.Name }}-server-deployment
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: server
@@ -13,14 +13,14 @@ spec:
         app: server
     spec:
       containers:
-        - name: server
-          image: server:1.0.0
+        - name: {{ .Values.server.containerName }}
+          image: {{ .Values.server.image }}
           ports:
-            - containerPort: 9090
+            - containerPort: {{ .Values.server.port }}
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://db:5432/shareit"
+              value: "jdbc:postgresql://{{ .Release.Name }}-db-service:5432/shareit"
             - name: POSTGRES_USER
-              value: "evgenii"
+              value: "{{ .Values.server.postgresUser }}"
             - name: POSTGRES_PASSWORD
-              value: "12345678"
+              value: "{{ .Values.server.postgresPassword }}"
