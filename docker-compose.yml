@@ -1,7 +1,7 @@
-version: '3.8'
 services:
   gateway:
     build: gateway
+    image: gateway:1.0.0
     container_name: ShareItGateway
     ports:
       - "8080:8080"
@@ -12,6 +12,7 @@ services:
 
   server:
     build: server
+    image: server:1.0.0
     container_name: ShareItServer
     ports:
       - "9090:9090"
@@ -23,7 +24,7 @@ services:
       - POSTGRES_PASSWORD=12345678
 
   db:
-    image: postgres
+    image: postgres:16.3
     container_name: ShareItDB
     volumes:
       - /var/lib/postgresql/data/
