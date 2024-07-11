@@ -1,0 +1,4 @@
+docker run --rm -v "$(pwd):/work" \
+    -w /work \
+    abatalev/pandoc-pdf:3.2 \
+    md2pdf.sh readme.md readme.pdf
