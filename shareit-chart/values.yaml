@@ -1,0 +1,22 @@
+replicaCount: 1
+
+gateway:
+  image: "gateway:1.0.0"
+  containerName: "shareit-gateway"
+  port: 8080
+
+server:
+  image: "server:1.0.0"
+  containerName: "shareit-server"
+  port: 9090
+  postgresUser: "evgenii"
+  postgresPassword: "12345678"
+
+db:
+  image: "postgres:16.3"
+  containerName: "shareit-db"
+  port: 5432
+  hostPort: 6541
+  postgresDb: "shareit"
+  postgresUser: "evgenii"
+  postgresPassword: "12345678"
