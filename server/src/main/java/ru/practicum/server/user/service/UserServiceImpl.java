@@ -3,6 +3,7 @@ package ru.practicum.server.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.server.exception.DuplicateResourceException;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.user.entity.UserEntity;
 import ru.practicum.server.user.mapper.UserRepositoryMapper;
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User create(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new DuplicateResourceException(String.format("Email %s уже существует и должен быть уникальным", user.getEmail()));
+        }
         return mapper.toUser(userRepository.save(mapper.toUserEntity(user)));
     }
 
