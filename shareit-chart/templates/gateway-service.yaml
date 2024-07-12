@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-gateway-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
-    - port: {{ .Values.gateway.port }}
+    - port: 30080
       targetPort: {{ .Values.gateway.port }}
   selector:
     app: gateway
