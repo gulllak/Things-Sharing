@@ -8,7 +8,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-@ActiveProfiles("test")
+@ActiveProfiles("containertest")
 public class BaseTest {
 
     @Container
