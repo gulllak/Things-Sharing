@@ -10,7 +10,6 @@ import ru.practicum.server.BaseTest;
 import ru.practicum.server.exception.DuplicateResourceException;
 import ru.practicum.server.exception.EntityNotFoundException;
 import ru.practicum.server.user.dto.PatchUserDto;
-import ru.practicum.server.user.mapper.UserRepositoryMapper;
 import ru.practicum.server.user.model.User;
 
 import java.util.List;
@@ -23,9 +22,6 @@ class UserServiceTestcontainersTest extends BaseTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserRepositoryMapper userRepositoryMapper;
 
     @Transactional
     @Test
