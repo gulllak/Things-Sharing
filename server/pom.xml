@@ -47,8 +47,6 @@
 		</dependency>
 	</dependencies>
 
-
-
 	<build>
 		<plugins>
 			<plugin>
@@ -62,6 +60,34 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.7.1</version>
+				<executions>
+					<execution>
+						<id>unpack-flyway-migrations</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>ru.practicum</groupId>
+									<artifactId>migration</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/flyway</outputDirectory>
+									<includes>db/migration/*</includes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
