@@ -79,10 +79,10 @@
 									<groupId>ru.practicum</groupId>
 									<artifactId>migration</artifactId>
 									<version>${project.version}</version>
-									<type>jar</type>
+									<classifier>zip</classifier>
+									<type>zip</type>
 									<overWrite>false</overWrite>
 									<outputDirectory>${project.build.directory}/flyway</outputDirectory>
-									<includes>db/migration/*</includes>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
