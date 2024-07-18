@@ -1,0 +1,10 @@
+migration:
+  image: "migration:1.0.0"
+  containerName: "shareit-migration"
+  timestamp: "{{ now | toString | quote }}"
+
+db:
+  port: 5432
+  postgresDb: "share"
+  postgresUser: "evgenii"
+  postgresPassword: "12345678"
