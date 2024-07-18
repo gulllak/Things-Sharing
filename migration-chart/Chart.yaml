@@ -1,0 +1,4 @@
+apiVersion: v2
+name: migration-chart
+description: A Helm chart for running Flyway migrations
+version: 0.1.0
