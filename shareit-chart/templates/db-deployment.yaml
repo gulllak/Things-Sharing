@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-db-deployment
+  name: db-deployment
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -30,4 +30,4 @@ spec:
       volumes:
         - name: storage
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-postgres-pvc
+            claimName: postgres-pvc
