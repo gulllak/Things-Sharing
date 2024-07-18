@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-gateway-deployment
+  name: gateway-deployment
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -19,4 +19,4 @@ spec:
             - containerPort: {{ .Values.gateway.port }}
           env:
             - name: SHAREIT_SERVER_URL
-              value: "http://{{ .Release.Name }}-server-service:9090"
+              value: "http://server-service:9090"
