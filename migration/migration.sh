@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Выполняется 'mvn clean package' для модуля migration..."
-mvn -f ./migration/pom.xml clean package
+mvn clean package
 if [ $? -ne 0 ]; then
     echo "Ошибка"
     exit 1
