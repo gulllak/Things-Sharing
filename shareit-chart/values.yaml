@@ -17,6 +17,6 @@ db:
   containerName: "shareit-db"
   port: 5432
   hostPort: 6541
-  postgresDb: "shareit"
+  postgresDb: "share"
   postgresUser: "evgenii"
   postgresPassword: "12345678"
