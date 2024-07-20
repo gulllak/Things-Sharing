@@ -19,7 +19,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: FLYWAY_URL
-              value: "jdbc:postgresql://db-service:{{ .Values.db.port }}/{{ .Values.db.postgresDb }}"
+              value: "jdbc:postgresql://postgres:{{ .Values.db.port }}/{{ .Values.db.postgresDb }}"
             - name: FLYWAY_USER
               value: "{{ .Values.db.postgresUser }}"
             - name: FLYWAY_PASSWORD

@@ -7,4 +7,4 @@ db:
   port: 5432
   postgresDb: "share"
   postgresUser: "evgenii"
-  postgresPassword: "12345678"
+  postgresPassword: "postgres"
