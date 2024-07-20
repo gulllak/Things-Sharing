@@ -1,0 +1,8 @@
+image: "server:1.0.0"
+port: 9091
+targetPort: 9091
+name: server
+datasource:
+  host: host
+  postgresUser: evgenii
+  postgresPassword: postgres

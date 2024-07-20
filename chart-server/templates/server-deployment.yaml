@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image }}
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: SERVER_PORT
+              value: "9091"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/share"
+            - name: POSTGRES_USER
+              value: {{ .Values.datasource.postgresUser }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.datasource.postgresPassword }}
