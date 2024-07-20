@@ -1,0 +1,7 @@
+image: "gateway:1.0.0"
+port: 8090
+targetPort: 8090
+name: gateway
+server:
+  host: host
+  port: 9091
