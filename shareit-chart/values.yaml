@@ -1,22 +1,15 @@
-replicaCount: 1
+chart-gateway:
+  server:
+    host: server
 
-gateway:
-  image: "gateway:1.0.0"
-  containerName: "shareit-gateway"
-  port: 8080
+chart-server:
+  datasource:
+    host: postgres
 
-server:
-  image: "server:1.0.0"
-  containerName: "shareit-server"
-  port: 9090
-  postgresUser: "evgenii"
-  postgresPassword: "12345678"
 
-db:
-  image: "postgres:16.3"
-  containerName: "shareit-db"
-  port: 5432
-  hostPort: 6541
-  postgresDb: "share"
-  postgresUser: "evgenii"
-  postgresPassword: "12345678"
+postgresql:
+  fullnameOverride: postgres
+  auth:
+    username: evgenii
+    password: postgres
+    database: share
