@@ -20,11 +20,11 @@ services:
       - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/share
-      - POSTGRES_USER=evgenii
-      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   db:
-    image: postgres:16.3
+    image: postgres:14
     container_name: ShareItDB
     volumes:
       - /var/lib/postgresql/data/
@@ -32,5 +32,25 @@ services:
       - "6541:5432"
     environment:
       - POSTGRES_DB=share
-      - POSTGRES_USER=evgenii
-      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9092:9090"
+    volumes:
+      - ./server/src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - server
+
+  flyway:
+    build: migration
+    container_name: migration
+    depends_on:
+      - db
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://db:5432/share
+      - FLYWAY_USER=postgres
+      - ENV FLYWAY_PASSWORD=postgres
