@@ -2,6 +2,7 @@ migration:
   image: "migration:1.0.0"
   containerName: "shareit-migration"
   timestamp: "{{ now | toString | quote }}"
+  prometheusPushgateway: "http://shareit-prometheus-pushgateway.default.svc.cluster.local:9091"
 
 db:
   port: 5432
