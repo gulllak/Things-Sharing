@@ -39,11 +39,12 @@ services:
     image: prom/prometheus
     container_name: prometheus
     ports:
-      - "9092:9090"
+      - "9090:9090"
     volumes:
       - ./server/src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - server
+      - gateway
 
   flyway:
     build: migration
