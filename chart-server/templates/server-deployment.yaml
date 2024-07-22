@@ -2,6 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.name }}
+  annotations:
+    prometheus.io/scrape: 'true'  # Указывает Prometheus собирать метрики с этого сервиса
+    prometheus.io/scheme: 'http'  # Указывает использовать HTTP схему для подключения
+    prometheus.io/path: '/actuator/prometheus'
+    prometheus.io/scrape_interval: "15s"
 spec:
   selector:
     matchLabels:
