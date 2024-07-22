@@ -5,3 +5,7 @@ name: gateway
 server:
   host: host
   port: 9091
+livenessProbe:
+  path: /healthz
+  initialDelaySeconds: 90
+  periodSeconds: 30

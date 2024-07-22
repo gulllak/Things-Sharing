@@ -6,3 +6,7 @@ datasource:
   host: host
   postgresUser: evgenii
   postgresPassword: postgres
+livenessProbe:
+  path: /healthz
+  initialDelaySeconds: 90
+  periodSeconds: 30

@@ -21,6 +21,12 @@ spec:
           image: {{ .Values.image }}
           ports:
             - containerPort: {{ .Values.port }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           env:
             - name: SERVER_PORT
               value: "9091"
