@@ -5,7 +5,14 @@ name: gateway
 server:
   host: host
   port: 9091
-livenessProbe:
-  path: /healthz
-  initialDelaySeconds: 90
-  periodSeconds: 30
+
+probes:
+  livenessProbe:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 90
+    periodSeconds: 15
+  readinessProbe:
+    httpGet:
+      path: /actuator/health/readiness
+    initialDelaySeconds: 90
+    periodSeconds: 15
