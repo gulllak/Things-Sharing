@@ -7,8 +7,11 @@ services:
       - "8090:8090"
     depends_on:
       - server
+      - jaeger
     environment:
       - SHAREIT_SERVER_URL=http://server:9091
+      - OTEL_SERVICE_NAME=Gateway
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
 
   server:
     build: server
@@ -18,10 +21,13 @@ services:
       - "9091:9091"
     depends_on:
       - db
+      - jaeger
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/share
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - OTEL_SERVICE_NAME=Server
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
 
   db:
     image: postgres:14
@@ -55,3 +61,12 @@ services:
       - FLYWAY_URL=jdbc:postgresql://db:5432/share
       - FLYWAY_USER=postgres
       - ENV FLYWAY_PASSWORD=postgres
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one
+    ports:
+      - "16686:16686"
+      - "14250:14250"
+      - "4317:4317"
+      - "4318:4318"
