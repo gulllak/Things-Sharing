@@ -38,3 +38,7 @@ spec:
               value: "8090"
             - name: SHAREIT_SERVER_URL
               value: "http://server:9091"
+            - name: OTEL_SERVICE_NAME
+              value: "Gateway"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://shareit-jaeger-collector:4318/v1/traces"

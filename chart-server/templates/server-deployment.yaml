@@ -42,3 +42,7 @@ spec:
               value: {{ .Values.datasource.postgresUser }}
             - name: POSTGRES_PASSWORD
               value: {{ .Values.datasource.postgresPassword }}
+            - name: OTEL_SERVICE_NAME
+              value: "Server"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://shareit-jaeger-collector:4318/v1/traces"
