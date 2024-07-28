@@ -10,8 +10,8 @@ services:
       - jaeger
     environment:
       - SHAREIT_SERVER_URL=http://server:9091
-      - OTEL_SERVICE_NAME=Gateway
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - TRACING_HOST=jaeger
+      - TRACING_PORT=4318
 
   server:
     build: server
@@ -26,8 +26,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/share
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - OTEL_SERVICE_NAME=Server
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - TRACING_HOST=jaeger
+      - TRACING_PORT=4318
 
   db:
     image: postgres:14
@@ -70,3 +70,5 @@ services:
       - "14250:14250"
       - "4317:4317"
       - "4318:4318"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
