@@ -9,10 +9,13 @@ server:
 probes:
   livenessProbe:
     path: /actuator/health/liveness
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     periodSeconds: 15
+    failureThreshold: 1
   readinessProbe:
     httpGet:
       path: /actuator/health/readiness
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     periodSeconds: 15
+    successThreshold: 1
+    failureThreshold: 2
