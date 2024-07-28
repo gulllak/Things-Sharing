@@ -1,20 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress
+  name: {{ .Values.gatewayingress.controller.ingressClassResource.name }}
 spec:
-  ingressClassName: "nginx"
+  ingressClassName: {{ .Values.gatewayingress.controller.ingressClassResource.name }}
   rules:
-    - http:
+    - host: gateway
+      http:
         paths:
           - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: gateway
-                port:
-                  number: 8090
-          - path: /actuator
             pathType: Prefix
             backend:
               service:

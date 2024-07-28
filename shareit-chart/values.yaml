@@ -27,3 +27,21 @@ jaeger:
     enabled: false
   query:
     enabled: false
+
+gatewayingress:
+  controller:
+    ingressClassResource:
+      controllerValue: k8s.io/gatewayingress
+      name: gatewayingress
+    service:
+      ports:
+        http: 8090
+
+jaegeringress:
+  controller:
+    ingressClassResource:
+      controllerValue: k8s.io/jaegeringress
+      name: jaegeringress
+    service:
+      ports:
+        http: 16686

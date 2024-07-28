@@ -21,18 +21,18 @@ spec:
           image: {{ .Values.image }}
           ports:
             - containerPort: {{ .Values.port }}
-{{/*          livenessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: {{ .Values.probes.livenessProbe.path }}*/}}
-{{/*              port: {{ .Values.port }}*/}}
-{{/*            initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds }}*/}}
-{{/*            periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds }}*/}}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: {{ .Values.probes.readinessProbe.httpGet }}*/}}
-{{/*              port: {{ .Values.port }}*/}}
-{{/*            initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds }}*/}}
-{{/*            periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds }}*/}}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.livenessProbe.path }}
+              port: {{ .Values.port }}
+            initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readinessProbe.httpGet }}
+              port: {{ .Values.port }}
+            initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds }}
           env:
             - name: SERVER_PORT
               value: "9091"
@@ -42,5 +42,7 @@ spec:
               value: {{ .Values.datasource.postgresUser }}
             - name: POSTGRES_PASSWORD
               value: {{ .Values.datasource.postgresPassword }}
-            - name: TRACING_URL
-              value: "http://shareit-jaeger-collector:4318/v1/traces"
+            - name: TRACING_HOST
+              value: "shareit-jaeger-collector"
+            - name: TRACING_PORT
+              value: "4318"
