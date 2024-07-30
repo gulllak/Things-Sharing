@@ -1,6 +1,7 @@
 package ru.practicum.server.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final UserMapper mapper;
@@ -42,9 +44,11 @@ public class UserController {
 
     @PostMapping
     public ResponseUserDto create(@RequestBody RequestUserDto requestUserDto) {
+        log.info("Received request to create user from Gateway: {}", requestUserDto);
         User user = mapper.toUser(requestUserDto);
-
-        return mapper.toResponseDto(userService.create(user));
+        ResponseUserDto responseDto = mapper.toResponseDto(userService.create(user));
+        log.info("Response from user Server: {}", responseDto);
+        return responseDto;
     }
 
     @PatchMapping("/{userId}")
