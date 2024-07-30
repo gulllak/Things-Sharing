@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} [%X{traceId:-},%X{spanId:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5001</destination>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc />
+                <context />
+                <logLevel />
+                <loggerName />
+                <pattern>
+                    <pattern>
+                        {
+                        "app": "gateway-log"
+                        }
+                    </pattern>
+                </pattern>
+                <threadName />
+                <message />
+                <logstashMarkers />
+                <stackTrace />
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="asyncLogstash" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="logstash" />
+        <queueSize>5000</queueSize> <!--Размер очереди для логов, ожидающих отправки.-->
+        <discardingThreshold>0</discardingThreshold>  <!--сообщения никогда не будут отбрасываться.-->
+        <neverBlock>true</neverBlock>  <!--логирование никогда не будет блокировать основное приложение.-->
+    </appender>
+
+    <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE" />
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="asyncLogstash" />
+        <appender-ref ref="asyncConsole" />
+    </root>
+
+    <logger name="org.springframework" level="INFO" />
+    <logger name="org.springframework.web.client.RestTemplate" level="INFO" />
+</configuration>
