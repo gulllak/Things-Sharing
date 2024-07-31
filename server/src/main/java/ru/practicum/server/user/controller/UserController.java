@@ -40,7 +40,10 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseUserDto getById(@PathVariable("userId") long userId) {
-        return mapper.toResponseDto(userService.getById(userId));
+        log.info("Received request to get user from Gateway: {}", userId);
+        ResponseUserDto responseDto = mapper.toResponseDto(userService.getById(userId));
+        log.info("Response from user Server: {}", responseDto);
+        return responseDto;
     }
 
     @PostMapping
