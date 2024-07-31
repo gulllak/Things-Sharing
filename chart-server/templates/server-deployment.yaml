@@ -28,14 +28,14 @@ spec:
             initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.probes.livenessProbe.failureThreshold }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.probes.readinessProbe.httpGet }}
-              port: {{ .Values.port }}
-            initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds }}
-            successThreshold: {{ .Values.probes.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.probes.readinessProbe.failureThreshold }}
+{{/*          readinessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              path: {{ .Values.probes.readinessProbe.httpGet }}*/}}
+{{/*              port: {{ .Values.port }}*/}}
+{{/*            initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds }}*/}}
+{{/*            periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds }}*/}}
+{{/*            successThreshold: {{ .Values.probes.readinessProbe.successThreshold }}*/}}
+{{/*            failureThreshold: {{ .Values.probes.readinessProbe.failureThreshold }}*/}}
           env:
             - name: SERVER_PORT
               value: "9091"
@@ -49,3 +49,5 @@ spec:
               value: "shareit-jaeger-collector"
             - name: TRACING_PORT
               value: "4318"
+            - name: LOGSTASH_URL
+              value: {{ .Values.logstash.host}}:{{ .Values.logstash.port}}

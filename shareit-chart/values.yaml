@@ -45,3 +45,22 @@ jaegeringress:
     service:
       ports:
         http: 16686
+
+logstash:
+  service:
+    ports:
+    - name: beats
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+  logstashPipeline:
+    logstash.conf: |
+      input {
+        tcp{
+          port => 5001
+          codec => json
+        }
+      }
+      output {
+        stdout { codec => rubydebug }
+      }

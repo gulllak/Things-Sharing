@@ -9,13 +9,17 @@ datasource:
 probes:
   livenessProbe:
     path: /actuator/health/liveness
-    initialDelaySeconds: 30
+    initialDelaySeconds: 100
     periodSeconds: 15
     failureThreshold: 1
-  readinessProbe:
-    httpGet:
-      path: /actuator/health/readiness
-    initialDelaySeconds: 30
-    periodSeconds: 15
-    successThreshold: 1
-    failureThreshold: 2
+#  readinessProbe:
+#    httpGet:
+#      path: /actuator/health/readiness
+#    initialDelaySeconds: 100
+#    periodSeconds: 15
+#    successThreshold: 1
+#    failureThreshold: 2
+
+logstash:
+  host: shareit-logstash
+  port: 5001
