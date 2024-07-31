@@ -6,8 +6,9 @@
         </encoder>
     </appender>
 
+    <springProperty scope="context" name="logstashUrl" source="logstash.url"/>
     <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5001</destination>
+        <destination>${logstashUrl}</destination>
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc />
