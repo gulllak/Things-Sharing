@@ -58,6 +58,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     public ResponseUserDto update(@PathVariable("userId") long userId,
                                   @RequestBody PatchUserDto patchUserDto) {
+        log.info("Received request to update user from Gateway: {}", patchUserDto);
         patchUserDto.setId(userId);
 
         return mapper.toResponseDto(userService.update(patchUserDto));
