@@ -13,6 +13,12 @@
 
 	<name>ShareIt Server</name>
 
+	<properties>
+		<docker.image.prefix>gulllak</docker.image.prefix>
+		<tag.version>0.0.1</tag.version>
+		<project.image.name>${project.build.finalName}</project.image.name>
+	</properties>
+
 	<dependencies>
 		<!-- Flyway Dependencies -->
 		<dependency>
@@ -97,6 +103,28 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.45.0</version>
+				<configuration>
+					<images>
+						<image>
+							<name>${docker.image.prefix}/${project.image.name}:${tag.version}</name>
+							<build>
+								<dockerFile>${project.basedir}/Dockerfile</dockerFile>
+							</build>
+						</image>
+					</images>
+					<authConfig>
+						<username>${env.DOCKER_LOGIN}</username>
+						<password>${env.DOCKER_PASSWORD}</password>
+					</authConfig>
+					<buildArgs>
+						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
