@@ -9,6 +9,6 @@ FROM amazoncorretto:11.0.23-alpine
 EXPOSE 9091
 ARG JAR_FILE
 COPY --from=build /build/target/${JAR_FILE} /server.jar
-COPY target/*.jar server.jar
+#COPY target/*.jar server.jar
 
 ENTRYPOINT ["java","-jar","server.jar"]
