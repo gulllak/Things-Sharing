@@ -6,6 +6,7 @@
 		<groupId>ru.practicum</groupId>
 		<artifactId>shareit</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>shareit-server</artifactId>
@@ -113,7 +114,7 @@
 						<image>
 							<name>${docker.image.prefix}/${project.image.name}:${tag.version}</name>
 							<build>
-								<dockerFile>${project.basedir}/Dockerfile</dockerFile>
+								<dockerFile>${project.basedir}/../Dockerfile.server</dockerFile>
 							</build>
 						</image>
 					</images>
@@ -128,4 +129,29 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>skip-unpack</id>
+			<activation>
+				<property>
+					<name>skipUnpack</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>unpack-flyway-migrations</id>
+								<phase>none</phase> <!-- Отключает выполнение -->
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

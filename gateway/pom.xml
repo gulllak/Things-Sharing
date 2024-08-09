@@ -6,6 +6,7 @@
 		<groupId>ru.practicum</groupId>
 		<artifactId>shareit</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>shareit-gateway</artifactId>
@@ -54,7 +55,7 @@
 						<image>
 							<name>${docker.image.prefix}/${project.image.name}:${tag.version}</name>
 							<build>
-								<dockerFile>${project.basedir}/Dockerfile</dockerFile>
+								<dockerFile>${project.basedir}/../Dockerfile.gateway</dockerFile>
 							</build>
 						</image>
 					</images>
