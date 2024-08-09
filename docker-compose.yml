@@ -1,6 +1,8 @@
 services:
   gateway:
-    build: gateway
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
     image: gateway:1.0.0
     container_name: ShareItGateway
     ports:
@@ -14,7 +16,9 @@ services:
       - TRACING_PORT=4318
 
   server:
-    build: server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
     image: server:1.0.0
     container_name: ShareItServer
     ports:
@@ -53,7 +57,9 @@ services:
       - gateway
 
   flyway:
-    build: migration
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
     container_name: migration
     depends_on:
       - db
