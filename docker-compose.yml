@@ -1,8 +1,9 @@
 services:
   gateway:
     build:
-      context: .
-      dockerfile: Dockerfile.gateway
+      context: gateway
+      args:
+        JAR_FILE: shareit-gateway-0.0.1.jar
     image: gateway:1.0.0
     container_name: ShareItGateway
     ports:
@@ -17,8 +18,9 @@ services:
 
   server:
     build:
-      context: .
-      dockerfile: Dockerfile.server
+      context: server
+      args:
+        JAR_FILE: shareit-server-0.0.1.jar
     image: server:1.0.0
     container_name: ShareItServer
     ports:
@@ -58,8 +60,7 @@ services:
 
   flyway:
     build:
-      context: .
-      dockerfile: Dockerfile.migration
+      context: migration
     container_name: migration
     depends_on:
       - db

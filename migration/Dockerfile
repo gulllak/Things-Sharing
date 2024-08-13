@@ -3,8 +3,8 @@ FROM flyway/flyway:8.5.13-alpine
 USER root
 RUN apk --no-cache add curl
 
-COPY ./migration/src/main/resources /flyway/sql
-COPY ./migration/migration-script.sh /flyway/migration-script.sh
+COPY ./src/main/resources /flyway/sql
+COPY ./migration-script.sh /flyway/migration-script.sh
 RUN chmod +x /flyway/migration-script.sh
 
 ENV FLYWAY_URL=jdbc:postgresql://db:5432/share
